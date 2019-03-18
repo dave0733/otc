@@ -13,9 +13,19 @@ if (isDev) {
 module.exports = {
   host: process.env.HOST || 'https://otctrading.io',
   port: parseInt(process.env.PORT, 10) || 4000,
+  isDev,
   mongoURL: process.env.MONGODB_URI || 'mongodb://localhost:27017/otctrade',
-  uploadLimit: process.env.UPLOAD_LIMIT || '20mb',
+  uploadLimit: process.env.UPLOAD_LIMIT || '10mb',
   jwtSecret: process.env.JWT_SECRET || 'emilisawesome',
   jwtExpiresIn: process.env.JWT_EXPIRES || '30d',
-  sendgridApiKey: process.env.SENDGRID_API_KEY
+  sendgridApiKey: process.env.SENDGRID_API_KEY,
+  fromMailAddress: process.env.FROM_MAIL_ADDRESS || 'no-reply@otctrading.io',
+  fromName: process.env.FROM_NAME || 'No Reply',
+  mailTemplates: {
+    resetPassword:
+      process.env.MAIL_RESET_PASSWORD || 'd-bead0ea9a0054ca3b9632e5001d5a7ab',
+    welcome: process.env.MAIL_WELCOME || 'd-15f118b86a6041cd8cb7c68decb17142',
+    verification:
+      process.env.MAIL_VERIFICATION || 'd-b46d79300dfc4ca3ab172f26514ecb3a'
+  }
 };
