@@ -3,6 +3,7 @@ const sslRedirect = require('heroku-ssl-redirect');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const compression = require('compression');
+const cors = require('cors');
 const config = require('./config');
 
 const app = express();
@@ -21,6 +22,8 @@ app.use(
     extended: false
   })
 );
+
+app.use(cors());
 
 app.get('/', (req, res) => {
   res.send('Welcome to OTC Trading API');
