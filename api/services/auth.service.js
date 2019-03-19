@@ -85,7 +85,7 @@ function sendVerificationEmail(email) {
         vars: {
           firstName: user.firstName,
           lastName: user.lastName,
-          verificationUrl: `${config.host}/auth/verify?token=${
+          verificationUrl: `${config.host}/auth/verify-email?token=${
             user.verificationToken
           }`
         }
