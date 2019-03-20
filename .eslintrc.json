@@ -10,6 +10,9 @@
   "rules": {
     "consistent-return": "off",
     "no-console": "off",
-    "global-require": "off"
+    "no-underscore-dangle": "off",
+    "no-param-reassign": "off",
+    "global-require": "off",
+    "class-methods-use-this": "off"
   }
 }
