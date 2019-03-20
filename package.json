@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "serve": "nodemon index.js",
-    "start": "NODE_ENV=production node index.js"
+    "start": "NODE_ENV=production node index.js",
+    "db:migrate": "node migrate.js",
+    "db:revert-last": "node migrate.js revert",
+    "heroku-postbuild": "npm run db:migrate"
   },
   "author": "Emil Alexandrescu",
   "license": "ISC",
