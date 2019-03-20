@@ -11,7 +11,7 @@ if (isDev) {
 }
 
 module.exports = {
-  host: process.env.HOST || 'https://otctrading.io',
+  host: process.env.HOST || 'https://www.otctrade.com',
   port: parseInt(process.env.PORT, 10) || 4000,
   isDev,
   mongoURL: process.env.MONGODB_URI || 'mongodb://localhost:27017/otctrade',
@@ -19,7 +19,7 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET || 'emilisawesome',
   jwtExpiresIn: process.env.JWT_EXPIRES || '30d',
   sendgridApiKey: process.env.SENDGRID_API_KEY,
-  fromMailAddress: process.env.FROM_MAIL_ADDRESS || 'no-reply@otctrading.io',
+  fromMailAddress: process.env.FROM_MAIL_ADDRESS || 'no-reply@otctrade.com',
   fromName: process.env.FROM_NAME || 'No Reply',
   mailTemplates: {
     resetPassword:
