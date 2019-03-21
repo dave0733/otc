@@ -7,6 +7,7 @@
     "serve": "nodemon index.js",
     "start": "NODE_ENV=production node index.js",
     "db:migrate": "node migrate.js",
+    "db:revert": "node migrate.js revert",
     "db:revert-last": "node migrate.js revert",
     "heroku-postbuild": "npm run db:migrate"
   },

@@ -106,10 +106,12 @@ class BaseCrudService {
     });
   }
 
-  list() {
-    const Model = this.model;
-
+  _listWhere(filters = {}) {
     const where = {};
+
+    Object.keys(filters).forEach(filterName => {
+      where[filterName] = filters[filterName];
+    });
 
     if (
       this.userIdField &&
@@ -119,7 +121,42 @@ class BaseCrudService {
       where[this.userIdField] = this.currentUser.id;
     }
 
-    return Model.find(where);
+    return where;
+  }
+
+  _listSort(sorts) {
+    sorts.unshift('createdAt desc');
+
+    return sorts.map(sort => sort.split(' '));
+  }
+
+  count(where = {}) {
+    return this.model.count(where);
+  }
+
+  list(filters, sorts, skip, limit) {
+    const Model = this.model;
+
+    const where = this._listWhere(filters || {});
+    const sort = this._listSort(sorts || []);
+
+    return Promise.all([
+      Model.find(where)
+        .sort(sort)
+        .skip(skip * 1 || 0)
+        .limit(limit * 1 || 20)
+        .lean(),
+      Model.count(where)
+    ]).then(results => {
+      const [items, total] = results;
+
+      return {
+        skip,
+        limit,
+        total,
+        data: items
+      };
+    });
   }
 }
 

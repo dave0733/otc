@@ -1,3 +1,4 @@
+const _ = require(`lodash`);
 const BaseCrudService = require('./BaseCrudService');
 
 class UserService extends BaseCrudService {
@@ -7,6 +8,7 @@ class UserService extends BaseCrudService {
       [
         'firstName',
         'lastName',
+        'email',
         'phone',
         'country',
         'state',
@@ -19,6 +21,28 @@ class UserService extends BaseCrudService {
     );
 
     this.changePassword = this.changePassword.bind(this);
+  }
+
+  create(data) {
+    const Model = this.model;
+    const createData = {};
+    const { password } = data;
+
+    const user = new Model(
+      Object.assign(createData, _.pick(data, this.fields))
+    );
+
+    user.username = data.email;
+
+    return new Promise((resolve, reject) => {
+      Model.register(user, password, (err, account) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(account);
+        }
+      });
+    });
   }
 
   changePassword(user, data) {
