@@ -28,6 +28,15 @@ npm i -g yarn
 yarn
 ```
 
+#### DB migration
+
+```sh
+yarn run db:migrate # this will run all missing migrations
+yarn run db:migrate name-of-migration # run specific migration
+yarn run db:revert-last # revert last migration
+yarn run db:revert name-of-migration # revert specific migration
+```
+
 ## Running the app
 
 #### When development
