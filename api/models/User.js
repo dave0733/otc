@@ -1,8 +1,24 @@
 const mongoose = require('mongoose');
 const passportLocalMongoose = require('passport-local-mongoose');
 const ROLES = require('../constants/roles');
+const GROUP_PERMISSIONS = require('../constants/group-permission');
 
 const { Schema } = mongoose;
+
+const permissionSchema = new Schema(
+  {
+    group: { type: Schema.ObjectId, ref: 'Group' },
+    permission: {
+      type: String,
+      required: true,
+      enum: Object.values(GROUP_PERMISSIONS),
+      default: GROUP_PERMISSIONS.APPLIED
+    }
+  },
+  {
+    _id: false
+  }
+);
 
 // @TODO oauth with facebook, twitter, github, google
 // @TODO stripe payment methods
@@ -44,6 +60,12 @@ const userSchema = new Schema(
     address2: { type: String, trim: true },
     zipcode: { type: String, trim: true },
 
+    // permissions
+    groups: {
+      type: [permissionSchema]
+    },
+
+    // security
     resetToken: { type: String, select: false },
     resetExpires: { type: Date, select: false },
     lastPasswordChange: { type: Date },
