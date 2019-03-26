@@ -2,6 +2,8 @@ const express = require('express');
 const userCtrl = require('../controllers/user.controller');
 const { isAdmin } = require('../middlewares/auth.middleware');
 
+const permissionRoutes = require('./permission.routes');
+
 const router = express.Router();
 
 router
@@ -14,6 +16,8 @@ router
   .get(userCtrl.read)
   .put(isAdmin, userCtrl.update)
   .delete(isAdmin, userCtrl.remove);
+
+router.use('/:id/permissions', permissionRoutes);
 
 router.param('id', userCtrl.getByIdMiddleware);
 

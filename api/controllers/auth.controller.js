@@ -54,6 +54,10 @@ function login(req, res, next) {
         return next(err1);
       }
 
+      if (!user.verified) {
+        return next(new APIError('Your account is not verified yet.', 401));
+      }
+
       const token = jwt.sign(user.toSafeJSON(), config.jwtSecret, {
         expiresIn: config.jwtExpiresIn
       });
