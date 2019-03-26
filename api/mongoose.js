@@ -3,6 +3,10 @@ const fs = require('fs');
 const config = require('../config');
 
 const initializeMongo = () => {
+  if (config.isDev) {
+    mongoose.set('debug', true);
+  }
+
   mongoose.connect(
     config.mongoURL,
     { useNewUrlParser: true, useCreateIndex: true },

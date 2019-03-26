@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
 const ROLES = require('../constants/roles');
 
-// @TODO implement pagination, filter, sort
 class BaseCrudService {
   constructor(
     modelName,
@@ -151,8 +150,8 @@ class BaseCrudService {
       const [items, total] = results;
 
       return {
-        skip,
-        limit,
+        skip: skip * 1,
+        limit: limit * 1,
         total,
         data: items
       };
