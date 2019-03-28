@@ -56,6 +56,7 @@ class BaseCrudController {
   }
 
   getByIdMiddleware(req, res, next, id) {
+    this.dataService.setCurrentUser(req.user);
     this.dataService
       .get(id)
       .then(item => {

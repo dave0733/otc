@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
+const APIError = require('../utils/api-error');
+const permUtils = require('../utils/permission');
 const GROUP_PERMISSION = require('../constants/group-permission');
+const GROUP_STATUS = require('../constants/group-status');
 
 class PermisisonService {
   constructor() {
@@ -19,7 +22,17 @@ class PermisisonService {
     this.revokeBan = this.revokeBan.bind(this);
   }
 
-  addPermission(user, group, permission) {
+  addPermission(user, group, permission, isForced) {
+    if (!isForced && group.status !== GROUP_STATUS.ACTIVE) {
+      return Promise.reject(new APIError('This group is not active yet', 403));
+    }
+
+    if (permUtils.isBanned(user)) {
+      return Promise.reject(
+        new APIError('You are banned from this group', 403)
+      );
+    }
+
     return this.userModel
       .findOneAndUpdate(
         {
@@ -48,6 +61,7 @@ class PermisisonService {
     if (permission) {
       condition.permission = permission;
     }
+
     return this.userModel.findOneAndUpdate(
       {
         _id: user._id
@@ -60,7 +74,11 @@ class PermisisonService {
     );
   }
 
-  upsertPermission(user, group, permission) {
+  upsertPermission(user, group, permission, isForced) {
+    if (!isForced && group.status !== GROUP_STATUS.ACTIVE) {
+      return Promise.reject(new APIError('This group is not active yet', 403));
+    }
+
     return this.removePermission(user, group).then(() =>
       this.addPermission(user, group, permission)
     );
@@ -90,6 +108,12 @@ class PermisisonService {
   }
 
   applyForGroup(user, group) {
+    if (permUtils.isGroupMember(user) || permUtils.isGroupAdmin(user)) {
+      return Promise.reject(
+        new APIError('You are already member of the group', 400)
+      );
+    }
+
     return this.addPermission(user, group, GROUP_PERMISSION.APPLIED);
   }
 
