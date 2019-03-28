@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
-const ROLES = require('../constants/roles');
+const permUtils = require('../utils/permission');
 
 class BaseCrudService {
   constructor(
@@ -31,11 +31,31 @@ class BaseCrudService {
     this.getOne = this.getOne.bind(this);
   }
 
+  _isAdmin() {
+    return permUtils.isAdmin(this.currentUser);
+  }
+
+  _hasAccess(group, permission) {
+    return permUtils.hasAccess(this.currentUser, group, permission);
+  }
+
+  _isGroupAdmin(group) {
+    return permUtils.isGroupAdmin(this.currentUser, group);
+  }
+
+  _isGroupMember(group) {
+    return permUtils.isGroupMember(this.currentUser, group);
+  }
+
+  _isBanned(group) {
+    return permUtils.isBanned(this.currentUser, group);
+  }
+
   setCurrentUser(currentUser) {
     this.currentUser = currentUser;
 
     // @NOTE may need more granular fields control here
-    if (currentUser && currentUser.role === ROLES.ADMIN) {
+    if (this._isAdmin()) {
       this.fields = [...this.safeFields, ...this.adminFields];
     } else {
       this.fields = [...this.safeFields];
@@ -112,11 +132,7 @@ class BaseCrudService {
       where[filterName] = filters[filterName];
     });
 
-    if (
-      this.userIdField &&
-      this.currentUser &&
-      this.currentUser.role !== ROLES.ADMIN
-    ) {
+    if (this.userIdField && this._isAdmin()) {
       where[this.userIdField] = this.currentUser.id;
     }
 
