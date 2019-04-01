@@ -9,7 +9,8 @@ class BaseCrudService {
     safeFields = [],
     adminFields = [],
     userIdField = null,
-    populateFields = []
+    populateFields = [],
+    listPopulateField = ''
   ) {
     this.currentUser = null;
 
@@ -19,8 +20,10 @@ class BaseCrudService {
     this.adminFields = [...adminFields];
     this.userIdField = userIdField;
     this.populateFields = [...populateFields];
+    this.listPopulateField = listPopulateField;
     this.model = mongoose.model(this.modelName);
 
+    this.checkOwner = this.checkOwner.bind(this);
     this.setCurrentUser = this.setCurrentUser.bind(this);
     this.create = this.create.bind(this);
     this.update = this.update.bind(this);
@@ -51,6 +54,27 @@ class BaseCrudService {
     return permUtils.isBanned(this.currentUser, group);
   }
 
+  _isOwner(obj, fieldName) {
+    return (
+      this.currentUser &&
+      obj &&
+      obj[fieldName || this.userIdField] &&
+      obj[fieldName || this.userIdField].equals(this.currentUser.id)
+    );
+  }
+
+  checkOwner(
+    obj,
+    fieldName,
+    message = 'You are not authorized to do this action'
+  ) {
+    return Promise.resolve().then(() => {
+      if (!this._isOwner(obj, fieldName) && !this._isAdmin()) {
+        throw new APIError(message, 403);
+      }
+    });
+  }
+
   setCurrentUser(currentUser) {
     this.currentUser = currentUser;
 
@@ -62,16 +86,16 @@ class BaseCrudService {
     }
   }
 
-  create(data, user) {
+  create(data, extraData = {}) {
     const Model = this.model;
     const createData = {};
 
     if (this.userIdField) {
-      createData[this.userIdField] = user._id;
+      createData[this.userIdField] = this.currentUser._id;
     }
 
     const item = new Model(
-      Object.assign(createData, _.pick(data, this.fields))
+      Object.assign(createData, _.pick(data, this.fields), extraData)
     );
 
     return item.save();
@@ -132,7 +156,7 @@ class BaseCrudService {
       where[filterName] = filters[filterName];
     });
 
-    if (this.userIdField && this._isAdmin()) {
+    if (this.userIdField && !this._isAdmin()) {
       where[this.userIdField] = this.currentUser.id;
     }
 
@@ -149,14 +173,15 @@ class BaseCrudService {
     return this.model.count(where);
   }
 
-  list(filters, sorts, skip, limit) {
+  list(filters, sorts, skip, limit, useRawFilter = false) {
     const Model = this.model;
 
     const where = this._listWhere(filters || {});
     const sort = this._listSort(sorts || []);
 
     return Promise.all([
-      Model.find(where)
+      Model.find(useRawFilter ? filters : where)
+        .populate(this.listPopulateField)
         .sort(sort)
         .skip(skip * 1 || 0)
         .limit(limit * 1 || 20)

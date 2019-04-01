@@ -10,7 +10,11 @@ function hasAccess(user, group, permission) {
     return false;
   }
 
-  const perm = user.groups.find(g => g.group === group._id.toString());
+  const perm = user.groups.find(g =>
+    g.group.equals
+      ? g.group.equals(group._id)
+      : g.group === group._id.toString()
+  );
 
   if (
     perm &&

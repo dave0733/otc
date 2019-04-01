@@ -1,6 +1,10 @@
 const express = require('express');
 const groupCtrl = require('../controllers/group.controller');
-const { isGroupAdmin } = require('../middlewares/auth.middleware');
+const {
+  isGroupAdmin,
+  hasGroupAccess
+} = require('../middlewares/auth.middleware');
+const offerRoutes = require('./offer.routes');
 
 const router = express.Router();
 
@@ -10,13 +14,14 @@ router
   .get(groupCtrl.list);
 
 router
-  .route('/:id')
+  .route('/:groupid')
   .get(groupCtrl.read)
   .put(isGroupAdmin, groupCtrl.update)
   .delete(isGroupAdmin, groupCtrl.remove);
 
-router.route('/:id/members').get(isGroupAdmin, groupCtrl.getMembers);
+router.route('/:groupid/members').get(hasGroupAccess, groupCtrl.getMembers);
+router.use('/:groupid/offers', hasGroupAccess, offerRoutes);
 
-router.param('id', groupCtrl.getByIdMiddleware);
+router.param('groupid', groupCtrl.getByIdMiddleware);
 
 module.exports = router;

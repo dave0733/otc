@@ -27,7 +27,7 @@ class PermisisonService {
       return Promise.reject(new APIError('This group is not active yet', 403));
     }
 
-    if (permUtils.isBanned(user)) {
+    if (permUtils.isBanned(user, group)) {
       return Promise.reject(
         new APIError('You are banned from this group', 403)
       );
@@ -108,7 +108,10 @@ class PermisisonService {
   }
 
   applyForGroup(user, group) {
-    if (permUtils.isGroupMember(user) || permUtils.isGroupAdmin(user)) {
+    if (
+      permUtils.isGroupMember(user, group) ||
+      permUtils.isGroupAdmin(user, group)
+    ) {
       return Promise.reject(
         new APIError('You are already member of the group', 400)
       );

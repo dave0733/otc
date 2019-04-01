@@ -19,7 +19,7 @@ class GroupService extends BaseCrudService {
     const where = super._listWhere(filters);
     delete where[this.userIdField];
 
-    // force listign with status
+    // force listing with status
     if (!this._isAdmin()) {
       where.status = GROUP_STATUS.ACTIVE;
     }
@@ -27,8 +27,8 @@ class GroupService extends BaseCrudService {
     return where;
   }
 
-  create(data, user) {
-    return super.create(data, user).then(group => {
+  create(data) {
+    return super.create(data).then(group => {
       return permissionService
         .addPermission(this.currentUser, group, GROUP_PERMISSION.ADMIN, true)
         .then(() => group);
@@ -49,7 +49,7 @@ class GroupService extends BaseCrudService {
     });
   }
 
-  getMembers(groupid, filters, sorts, skip, limit) {
+  getMembers(groupid, filters = {}, sorts, skip, limit) {
     return userService.list(
       {
         ...filters,

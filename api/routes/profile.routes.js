@@ -1,6 +1,9 @@
 const express = require('express');
 const profileCtrl = require('../controllers/profile.controller');
 const groupCtrl = require('../controllers/group.controller');
+const offerCtrl = require('../controllers/offer.controller');
+const proposalCtrl = require('../controllers/proposal.controller');
+const vouchCtrl = require('../controllers/vouch.controller');
 
 const router = express.Router();
 
@@ -12,6 +15,10 @@ router
 router.route('/change-password').post(profileCtrl.changePassword);
 
 router.route('/permissions').get(profileCtrl.getPermissions);
+router.route('/my-groups/:groupid/offers').get(offerCtrl.list);
+router.route('/my-groups/:groupid/proposals').get(proposalCtrl.list);
+router.route('/my-groups/:groupid/vouches').get(vouchCtrl.list);
+
 router
   .route('/permissions/:groupid/apply')
   .put(profileCtrl.applyForGroup)

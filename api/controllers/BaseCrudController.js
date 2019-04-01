@@ -19,7 +19,7 @@ class BaseCrudController {
     this.dataService.setCurrentUser(req.user);
 
     return this.dataService
-      .create(req.body, req.user)
+      .create(req.body)
       .then(item => res.json(item))
       .catch(next);
   }
