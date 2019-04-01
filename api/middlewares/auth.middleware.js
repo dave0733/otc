@@ -33,6 +33,20 @@ const hasAccess = permission => (req, res, next) => {
 
 const isGroupAdmin = hasAccess(GROUP_PERMISSION.ADMIN);
 const isGroupMember = hasAccess(GROUP_PERMISSION.MEMBER);
+const hasGroupAccess = (req, res, next) => {
+  if (permUtils.isAdmin(req.user)) {
+    return next();
+  }
+
+  if (
+    permUtils.isGroupAdmin(req.user, req.group) ||
+    permUtils.isGroupMember(req.user, req.group)
+  ) {
+    return next();
+  }
+
+  return next(new APIError('You are forbidden to access this resource', 403));
+};
 
 // owner based
 const isMe = (req, res, next) => {
@@ -50,6 +64,7 @@ module.exports = {
   isMe,
   hasRole,
   hasAccess,
+  hasGroupAccess,
   isGroupAdmin,
   isGroupMember
 };
