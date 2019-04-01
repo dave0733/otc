@@ -60,6 +60,11 @@ const userSchema = new Schema(
     address2: { type: String, trim: true },
     zipcode: { type: String, trim: true },
 
+    // feedback
+    avgRating: { type: Number, default: 0 },
+    ratingCount: { type: Number, default: 0 },
+    lastFeedback: { type: Date },
+
     // permissions
     groups: {
       type: [permissionSchema]
