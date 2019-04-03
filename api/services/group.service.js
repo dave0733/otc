@@ -2,6 +2,7 @@ const BaseCrudService = require('./BaseCrudService');
 const userService = require('./user.service');
 const APIError = require('../utils/api-error');
 const permissionService = require('./permission.service');
+const chatService = require('./chat.service');
 const GROUP_PERMISSION = require('../constants/group-permission');
 const GROUP_STATUS = require('../constants/group-status');
 
@@ -31,6 +32,7 @@ class GroupService extends BaseCrudService {
     return super.create(data).then(group => {
       return permissionService
         .addPermission(this.currentUser, group, GROUP_PERMISSION.ADMIN, true)
+        .then(() => chatService.createGroupChat(group))
         .then(() => group);
     });
   }

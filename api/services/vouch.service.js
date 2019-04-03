@@ -3,6 +3,7 @@ const BaseCrudService = require('./BaseCrudService');
 const APIError = require('../utils/api-error');
 const VOUCH_STATUS = require('../constants/vouch-status');
 
+// @TODO check against requestTo connection
 class VouchService extends BaseCrudService {
   constructor() {
     super(
