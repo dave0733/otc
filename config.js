@@ -27,5 +27,7 @@ module.exports = {
     welcome: process.env.MAIL_WELCOME || 'd-15f118b86a6041cd8cb7c68decb17142',
     verification:
       process.env.MAIL_VERIFICATION || 'd-b46d79300dfc4ca3ab172f26514ecb3a'
-  }
+  },
+  firebaseUrl: process.env.FIREBASE_URL || '',
+  firebaseServiceAccount: process.env.FIREBASE_SERVICE_ACCOUNT || ''
 };

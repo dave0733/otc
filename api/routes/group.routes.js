@@ -5,6 +5,7 @@ const {
   hasGroupAccess
 } = require('../middlewares/auth.middleware');
 const offerRoutes = require('./offer.routes');
+const chatRoutes = require('./chat.routes');
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router
 
 router.route('/:groupid/members').get(hasGroupAccess, groupCtrl.getMembers);
 router.use('/:groupid/offers', hasGroupAccess, offerRoutes);
+router.use('/:groupid/chats', hasGroupAccess, chatRoutes);
 
 router.param('groupid', groupCtrl.getByIdMiddleware);
 
