@@ -1,4 +1,5 @@
 const express = require('express');
+const authCtrl = require('../controllers/auth.controller');
 const profileCtrl = require('../controllers/profile.controller');
 const groupCtrl = require('../controllers/group.controller');
 const offerCtrl = require('../controllers/offer.controller');
@@ -13,6 +14,7 @@ router
   .put(profileCtrl.updateProfile);
 
 router.route('/change-password').post(profileCtrl.changePassword);
+router.route('/refresh-firebase-token').get(authCtrl.refreshFirebaseToken);
 
 router.route('/permissions').get(profileCtrl.getPermissions);
 router.route('/my-groups/:groupid/offers').get(offerCtrl.list);

@@ -1,11 +1,10 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const _ = require('lodash');
 const mongoose = require('mongoose');
 const config = require('../../config');
 const APIError = require('../utils/api-error');
+const firebase = require('../utils/firebase');
 const AuthService = require('../services/auth.service');
-const UserService = require('../services/user.service');
 
 const User = mongoose.model('User');
 
@@ -62,42 +61,38 @@ function login(req, res, next) {
         expiresIn: config.jwtExpiresIn
       });
 
-      res.json({
-        user: user.toSafeJSON(),
-        token
-      });
+      return firebase
+        .generateToken({
+          _id: user._id,
+          role: user.role,
+          groups: user.groups
+        })
+        .then(firebaseToken => {
+          res.json({
+            user: user.toSafeJSON(),
+            token,
+            firebaseToken
+          });
+        })
+        .catch(err2 => next(err2));
     });
   })(req, res);
 }
 
-function getProfile(req, res) {
-  res.send(req.user);
-}
-
-function updateProfile(req, res, next) {
-  User.findById(req.user.id)
-    .then(user => {
-      if (!user) {
-        throw new APIError('User not found', 404);
-      }
-
-      return UserService.update(user, _.omit(req.body, ['role']));
+function refreshFirebaseToken(req, res, next) {
+  const { user } = req;
+  return firebase
+    .generateToken({
+      _id: user._id,
+      role: user.role,
+      groups: user.groups
     })
-    .then(user => res.json(user))
-    .catch(next);
-}
-
-function changePassword(req, res, next) {
-  User.findById(req.user.id)
-    .then(user => {
-      if (!user) {
-        throw new APIError('User not found', 404);
-      }
-
-      return UserService.changePassword(user, req.body);
+    .then(firebaseToken => {
+      res.json({
+        firebaseToken
+      });
     })
-    .then(() => res.json({ success: true }))
-    .catch(next);
+    .catch(err => next(err));
 }
 
 function requestResetPassword(req, res, next) {
@@ -138,10 +133,8 @@ function verifyEmail(req, res, next) {
 module.exports = {
   login,
   register,
-  getProfile,
-  updateProfile,
-  changePassword,
   requestResetPassword,
+  refreshFirebaseToken,
   resetPassword,
   sendVerificationEmail,
   verifyEmail
