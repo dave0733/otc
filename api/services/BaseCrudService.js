@@ -1,9 +1,9 @@
 const _ = require('lodash');
 const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
-const permUtils = require('../utils/permission');
+const BaseService = require('./BaseService');
 
-class BaseCrudService {
+class BaseCrudService extends BaseService {
   constructor(
     modelName,
     safeFields = [],
@@ -12,7 +12,7 @@ class BaseCrudService {
     populateFields = [],
     listPopulateField = ''
   ) {
-    this.currentUser = null;
+    super();
 
     this.modelName = modelName;
     this.safeFields = [...safeFields];
@@ -23,8 +23,6 @@ class BaseCrudService {
     this.listPopulateField = listPopulateField;
     this.model = mongoose.model(this.modelName);
 
-    this.checkOwner = this.checkOwner.bind(this);
-    this.setCurrentUser = this.setCurrentUser.bind(this);
     this.create = this.create.bind(this);
     this.update = this.update.bind(this);
     this.get = this.get.bind(this);
@@ -34,49 +32,8 @@ class BaseCrudService {
     this.getOne = this.getOne.bind(this);
   }
 
-  _isAdmin() {
-    return permUtils.isAdmin(this.currentUser);
-  }
-
-  _hasAccess(group, permission) {
-    return permUtils.hasAccess(this.currentUser, group, permission);
-  }
-
-  _isGroupAdmin(group) {
-    return permUtils.isGroupAdmin(this.currentUser, group);
-  }
-
-  _isGroupMember(group) {
-    return permUtils.isGroupMember(this.currentUser, group);
-  }
-
-  _isBanned(group) {
-    return permUtils.isBanned(this.currentUser, group);
-  }
-
-  _isOwner(obj, fieldName) {
-    return (
-      this.currentUser &&
-      obj &&
-      obj[fieldName || this.userIdField] &&
-      obj[fieldName || this.userIdField].equals(this.currentUser.id)
-    );
-  }
-
-  checkOwner(
-    obj,
-    fieldName,
-    message = 'You are not authorized to do this action'
-  ) {
-    return Promise.resolve().then(() => {
-      if (!this._isOwner(obj, fieldName) && !this._isAdmin()) {
-        throw new APIError(message, 403);
-      }
-    });
-  }
-
   setCurrentUser(currentUser) {
-    this.currentUser = currentUser;
+    super.setCurrentUser(currentUser);
 
     // @NOTE may need more granular fields control here
     if (this._isAdmin()) {
