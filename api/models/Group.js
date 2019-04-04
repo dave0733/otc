@@ -22,6 +22,10 @@ const groupSchema = new Schema(
     updatedBy: {
       type: Schema.ObjectId,
       ref: 'User'
+    },
+    chat: {
+      type: Schema.ObjectId,
+      ref: 'Chat'
     }
   },
   {

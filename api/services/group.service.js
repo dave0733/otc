@@ -33,6 +33,10 @@ class GroupService extends BaseCrudService {
       return permissionService
         .addPermission(this.currentUser, group, GROUP_PERMISSION.ADMIN, true)
         .then(() => chatService.createGroupChat(group))
+        .then(chat => {
+          group.chat = chat._id;
+          return group.save();
+        })
         .then(() => group);
     });
   }
