@@ -62,18 +62,28 @@ class ChatService extends BaseCrudService {
         );
       }
 
-      const chat = new ChatModel({
+      return ChatModel.findOne({
+        users: { $all: [this.currentUser._id, otherUser._id] },
         group: group._id,
-        createdBy: this.currentUser._id,
-        users: [this.currentUser._id, data.userId]
-      });
+        type: CHAT_TYPES.PRIVATE
+      }).then(existingChat => {
+        if (existingChat) {
+          return existingChat;
+        }
 
-      return chat
-        .save()
-        .then(() =>
-          this._createPrivateChatOnFirebase(chat._id.toString(), group, data)
-        )
-        .then(() => chat);
+        const chat = new ChatModel({
+          group: group._id,
+          createdBy: this.currentUser._id,
+          users: [this.currentUser._id, data.userId]
+        });
+
+        return chat
+          .save()
+          .then(() =>
+            this._createPrivateChatOnFirebase(chat._id.toString(), group, data)
+          )
+          .then(() => chat);
+      });
     });
   }
 
@@ -83,7 +93,10 @@ class ChatService extends BaseCrudService {
       group: group._id
     });
 
-    return chat.save().then(() => this._createGroupChatOnFirebase(group));
+    return chat
+      .save()
+      .then(() => this._createGroupChatOnFirebase(group))
+      .then(() => chat);
   }
 
   getPrivateChats(group) {
