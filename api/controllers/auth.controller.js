@@ -1,22 +1,23 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const _ = require('lodash');
 const config = require('../../config');
 const APIError = require('../utils/api-error');
 const firebase = require('../utils/firebase');
 const AuthService = require('../services/auth.service');
+const userService = require('../services/user.service');
 
 const User = mongoose.model('User');
 
 function register(req, res, next) {
-  const { nickname, email, firstName, lastName, password } = req.body;
-  const user = new User({
-    nickname,
-    email,
-    firstName,
-    lastName,
+  const { email, password } = req.body;
+
+  const data = {
+    ..._.pick(req.body, userService.fields),
     username: email
-  });
+  };
+  const user = new User(data);
 
   User.register(user, password, err => {
     if (err) {
