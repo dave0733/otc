@@ -1,0 +1,44 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'ADMIN';
+    }
+
+    function hasUserAccess(userIds) {
+      return isAuthenticated() && request.auth.uid in userIds;
+    }
+
+    function hasGroupAccess(group){
+      return isAuthenticated() && rgroup in request.auth.token.groups;
+    }
+
+    // prohibit reading and writing by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{docuemnt=**} {
+      allow read: if isSuperAdmin();
+    }
+
+    match /chats/{chat} {
+      allow read: if (resource != null && hasUserAccess(resource.user_ids)) || hasGroupAccess(chat);
+
+      function chatData() {
+        return get(/databases/$(database)/documents/chats/$(chat)).data;
+      }
+
+      match /messages/{document=**} {
+        allow read: if hasUserAccess(chatData().user_ids);
+      }
+    }
+
+    match /users/{user}/{document=**} {
+      allow read: if hasUserAccess(user);
+    }
+  }
+}
