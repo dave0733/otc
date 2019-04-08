@@ -8,7 +8,8 @@ const serviceAccount = JSON.parse(str);
 
 admin.initializeApp({
   databaseURL: config.firebaseUrl,
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: config.firebaseBucket
 });
 
 function getFirestore() {
@@ -25,8 +26,13 @@ function generateToken(user) {
   return auth.createCustomToken(user._id.toString(), user);
 }
 
+function getBucket() {
+  return admin.storage().bucket();
+}
+
 module.exports = {
   getFirestore,
   getAuth,
-  generateToken
+  generateToken,
+  getBucket
 };

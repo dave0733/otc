@@ -1,0 +1,34 @@
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && request.auth.token.role == 'ADMIN';
+    }
+
+    function hasUserAccess() {
+      return isAuthenticated()
+        && resource != null
+        && resource.metadata != null
+        && request.auth.uid in resource.metadata.user_ids.split('_');
+    }
+
+    function hasGroupAccess(group){
+      return isAuthenticated() && group in request.auth.token.groups;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read: if isSuperAdmin();
+    }
+
+    match /chats/{chat}/{allPaths=**} {
+      allow read: if (hasGroupAccess(chat) || hasUserAccess());
+    }
+  }
+}

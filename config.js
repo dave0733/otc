@@ -29,5 +29,9 @@ module.exports = {
       process.env.MAIL_VERIFICATION || 'd-b46d79300dfc4ca3ab172f26514ecb3a'
   },
   firebaseUrl: process.env.FIREBASE_URL || '',
+  firebaseProject: process.env.FIREBASE_PROJECT || '',
+  firebaseBucket: process.env.FIREBASE_BUCKET || '',
+  firebaseUploadLimit: process.env.FIREBASE_UPLOAD_LIMIT || 5 * 1024 * 1024,
+  firebaseToken: process.env.FIREBASE_TOKEN || '',
   firebaseServiceAccount: process.env.FIREBASE_SERVICE_ACCOUNT || ''
 };

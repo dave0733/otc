@@ -1,5 +1,6 @@
 const express = require('express');
 const chatCtrl = require('../controllers/chat.controller');
+const msgRoutes = require('./messages.routes');
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router
   .post(chatCtrl.createPrivateChat)
   .get(chatCtrl.getPrivateChats);
 
-router.route('/:chatid/messages').post(chatCtrl.sendMessage);
+router.use('/:chatid/messages', msgRoutes);
 
 router.param('chatid', chatCtrl.getByIdMiddleware);
 
