@@ -1,6 +1,5 @@
 const BaseCrudController = require('./BaseCrudController');
 const chatService = require('../services/chat.service');
-const messageService = require('../services/message.service');
 
 class ChatController extends BaseCrudController {
   constructor() {
@@ -8,7 +7,6 @@ class ChatController extends BaseCrudController {
 
     this.getPrivateChats = this.getPrivateChats.bind(this);
     this.createPrivateChat = this.createPrivateChat.bind(this);
-    this.sendMessage = this.sendMessage.bind(this);
   }
 
   getPrivateChats(req, res, next) {
@@ -27,16 +25,6 @@ class ChatController extends BaseCrudController {
       .createPrivateChat(req.group, req.body)
       .then(chat => {
         res.json(chat);
-      })
-      .catch(next);
-  }
-
-  sendMessage(req, res, next) {
-    messageService.setCurrentUser(req.user);
-    messageService
-      .create(req.chat, req.body)
-      .then(message => {
-        res.json(message);
       })
       .catch(next);
   }
