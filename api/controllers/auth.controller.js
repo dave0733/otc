@@ -66,7 +66,7 @@ function login(req, res, next) {
         .generateToken({
           _id: user._id,
           role: user.role,
-          groups: user.groups
+          groups: (user.groups || []).map(g => g.group)
         })
         .then(firebaseToken => {
           res.json({
@@ -86,7 +86,7 @@ function refreshFirebaseToken(req, res, next) {
     .generateToken({
       _id: user._id,
       role: user.role,
-      groups: user.groups
+      groups: (user.groups || []).map(g => g.group)
     })
     .then(firebaseToken => {
       res.json({
