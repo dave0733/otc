@@ -10,9 +10,8 @@ class ChatController extends BaseCrudController {
   }
 
   getPrivateChats(req, res, next) {
-    chatService.setCurrentUser(req.user);
     chatService
-      .getPrivateChats(req.group)
+      .getPrivateChats(req.user, req.group)
       .then(chats => {
         res.json(chats);
       })
@@ -20,9 +19,8 @@ class ChatController extends BaseCrudController {
   }
 
   createPrivateChat(req, res, next) {
-    chatService.setCurrentUser(req.user);
     chatService
-      .createPrivateChat(req.group, req.body)
+      .createPrivateChat(req.user, req.group, req.body)
       .then(chat => {
         res.json(chat);
       })

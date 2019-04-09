@@ -14,7 +14,6 @@ class OfferService extends BaseCrudService {
       'counterpart'
     ]);
 
-    this.setGroup = this.setGroup.bind(this);
     this.endListing = this.endListing.bind(this);
     this.leaveFeedbackToProposal = this.leaveFeedbackToProposal.bind(this);
     this.leaveFeedbackToOffer = this.leaveFeedbackToOffer.bind(this);
@@ -24,41 +23,35 @@ class OfferService extends BaseCrudService {
     this.getProposals = this.getProposals.bind(this);
   }
 
-  setGroup(group) {
-    this.group = group;
-  }
-
-  update(offer, data) {
-    return this.checkOwner(offer).then(() => {
+  update(user, offer, data) {
+    return this.checkOwner(user, offer).then(() => {
       if (offer.status !== OFFER_STATUS.PENDING) {
         throw new APIError('You can not update offer once it is active', 400);
       }
 
-      return super.update(offer, data);
+      return super.update(user, offer, data);
     });
   }
 
-  remove(offer) {
-    return this.checkOwner(offer).then(() => {
+  remove(user, offer) {
+    return this.checkOwner(user, offer).then(() => {
       if (offer.status !== OFFER_STATUS.PENDING) {
         throw new APIError('You can not delete offer once it is active', 400);
       }
 
-      return super.remove(offer);
+      return super.remove(user, offer);
     });
   }
 
-  _listWhere(filters = {}) {
-    const where = super._listWhere(filters);
+  _listWhere(user, filters = {}) {
+    const where = super._listWhere(user, filters);
     delete where[this.userIdField];
-
-    where.group = this.group._id;
 
     return where;
   }
 
-  endListing(offer) {
-    return this.checkOwner(offer).then(() => {
+  endListing(user, offer) {
+    return this.checkOwner(user, offer).then(() => {
       if (offer.status !== OFFER_STATUS.ACTIVE) {
         throw new APIError('You can only end an active offer.', 400);
       }
@@ -68,8 +61,8 @@ class OfferService extends BaseCrudService {
     });
   }
 
-  leaveFeedbackToProposal(offer, feedback) {
-    return this.checkOwner(offer)
+  leaveFeedbackToProposal(user, offer, feedback) {
+    return this.checkOwner(user, offer)
       .then(() => {
         if (offer.status !== OFFER_STATUS.ENDED) {
           throw new APIError(
@@ -89,8 +82,8 @@ class OfferService extends BaseCrudService {
       .then(() => offer);
   }
 
-  leaveFeedbackToOffer(offer, feedback) {
-    return this.checkOwner(offer, 'counterpart')
+  leaveFeedbackToOffer(user, offer, feedback) {
+    return this.checkOwner(user, offer, 'counterpart')
       .then(() => {
         if (offer.status !== OFFER_STATUS.ENDED) {
           throw new APIError(
@@ -110,8 +103,8 @@ class OfferService extends BaseCrudService {
       .then(() => offer);
   }
 
-  acceptProposal(offer, proposal) {
-    return this.checkOwner(offer).then(() => {
+  acceptProposal(user, offer, proposal) {
+    return this.checkOwner(user, offer).then(() => {
       if (offer.status !== OFFER_STATUS.PENDING) {
         throw new APIError(
           'You can only accept proposal when while offer is pending.',
@@ -137,7 +130,7 @@ class OfferService extends BaseCrudService {
     });
   }
 
-  rejectProposal(offer, proposal) {
+  rejectProposal(user, offer, proposal) {
     return this.checkOwner(offer).then(() => {
       if (
         offer.status !== OFFER_STATUS.PENDING &&
@@ -159,30 +152,27 @@ class OfferService extends BaseCrudService {
     });
   }
 
-  getVouches(offer, filters, sort, skip, limit) {
+  getVouches(user, offer, filters, sort, skip, limit) {
     const newFilters = filters || {};
-    if (!this._isOwner(offer)) {
-      newFilters.requestedTo = this.currentUser._id;
+
+    if (!this._isOwner(user, offer)) {
+      newFilters.requestedTo = user._id;
     }
 
     newFilters.offer = offer._id;
 
-    vouchService.setCurrentUser(this.currentUser);
-
-    return vouchService.list(newFilters, sort, skip, limit);
+    return vouchService.list(user, newFilters, sort, skip, limit);
   }
 
-  getProposals(offer, filters, sort, skip, limit) {
+  getProposals(user, offer, filters, sort, skip, limit) {
     const newFilters = filters || {};
-    if (!this._isOwner(offer)) {
-      newFilters.proposedBy = this.currentUser._id;
+    if (!this._isOwner(user, offer)) {
+      newFilters.proposedBy = user._id;
     }
 
     newFilters.offer = offer._id;
 
-    proposalService.setCurrentUser(this.currentUser);
-
-    return proposalService.list(newFilters, sort, skip, limit);
+    return proposalService.list(user, newFilters, sort, skip, limit);
   }
 }
 

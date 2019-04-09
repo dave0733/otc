@@ -7,10 +7,8 @@ class ProposalController extends BaseCrudController {
   }
 
   create(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .create(req.body, req.offer)
+      .create(req.user, req.body, req.offer)
       .then(item => res.json(item))
       .catch(next);
   }

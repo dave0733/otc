@@ -32,51 +32,50 @@ class BaseCrudService extends BaseService {
     this.getOne = this.getOne.bind(this);
   }
 
-  setCurrentUser(currentUser) {
-    super.setCurrentUser(currentUser);
-
-    // @NOTE may need more granular fields control here
-    if (this._isAdmin()) {
-      this.fields = [...this.safeFields, ...this.adminFields];
-    } else {
-      this.fields = [...this.safeFields];
+  _getFieldNames(user) {
+    if (this._isAdmin(user)) {
+      return [...this.safeFields, ...this.adminFields];
     }
+
+    return [...this.safeFields];
   }
 
-  create(data, extraData = {}) {
+  create(user, data, extraData = {}) {
     const Model = this.model;
     const createData = {};
+    const fields = this._getFieldNames(user);
 
     if (this.userIdField) {
-      createData[this.userIdField] = this.currentUser._id;
+      createData[this.userIdField] = user._id;
     }
 
     const item = new Model(
-      Object.assign(createData, _.pick(data, this.fields), extraData)
+      Object.assign(createData, _.pick(data, fields), extraData)
     );
 
     return item.save();
   }
 
-  update(item, data) {
-    const updateData = _.pick(data, this.fields);
+  update(user, item, data) {
+    const fields = this._getFieldNames(user);
+    const updateData = _.pick(data, fields);
 
     Object.assign(item, updateData);
 
     return item.save();
   }
 
-  remove(item) {
+  remove(user, item) {
     return item.delete();
   }
 
-  removeById(id) {
+  removeById(user, id) {
     const Model = this.model;
 
     return Model.deleteOne({ _id: id });
   }
 
-  get(id) {
+  get(user, id) {
     const Model = this.model;
     let query = Model.findById(id);
 
@@ -91,7 +90,7 @@ class BaseCrudService extends BaseService {
     });
   }
 
-  getOne(filter = {}) {
+  getOne(user, filter = {}) {
     const Model = this.model;
     let query = Model.findOne(filter);
 
@@ -106,21 +105,21 @@ class BaseCrudService extends BaseService {
     });
   }
 
-  _listWhere(filters = {}) {
+  _listWhere(user, filters = {}) {
     const where = {};
 
     Object.keys(filters).forEach(filterName => {
       where[filterName] = filters[filterName];
     });
 
-    if (this.userIdField && !this._isAdmin()) {
-      where[this.userIdField] = this.currentUser.id;
+    if (this.userIdField && !this._isAdmin(user)) {
+      where[this.userIdField] = user._id;
     }
 
     return where;
   }
 
-  _listSort(sorts) {
+  _listSort(user, sorts) {
     sorts.unshift('createdAt desc');
 
     return sorts.map(sort => sort.split(' '));
@@ -130,11 +129,11 @@ class BaseCrudService extends BaseService {
     return this.model.count(where);
   }
 
-  list(filters, sorts, skip, limit, useRawFilter = false) {
+  list(user, filters, sorts, skip, limit, useRawFilter = false) {
     const Model = this.model;
 
-    const where = this._listWhere(filters || {});
-    const sort = this._listSort(sorts || []);
+    const where = this._listWhere(user, filters || {});
+    const sort = this._listSort(user, sorts || []);
 
     return Promise.all([
       Model.find(useRawFilter ? filters : where)
@@ -148,8 +147,8 @@ class BaseCrudService extends BaseService {
       const [items, total] = results;
 
       return {
-        skip: skip * 1,
-        limit: limit * 1,
+        skip: skip * 1 || 0,
+        limit: limit * 1 || 20,
         total,
         data: items
       };

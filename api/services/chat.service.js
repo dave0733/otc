@@ -16,20 +16,20 @@ class ChatService extends BaseCrudService {
     this.getPrivateChats = this.getPrivateChats.bind(this);
   }
 
-  _createPrivateChatOnFirebase(id, group, data) {
+  _createPrivateChatOnFirebase(user, id, group, data) {
     const fs = firebase.getFirestore();
     const chat = fs.collection('chats').doc(id);
 
     return chat.set({
       group_id: group._id.toString(),
-      user_ids: [this.currentUser._id.toString(), data.userId],
+      user_ids: [user._id.toString(), data.userId],
       type: 'private',
       created_at: new Date().valueOf(),
       updated_at: new Date().valueOf()
     });
   }
 
-  _createGroupChatOnFirebase(group) {
+  _createGroupChatOnFirebase(user, group) {
     const fs = firebase.getFirestore();
     const groupId = group._id.toString();
     const chat = fs.collection('chats').doc(groupId);
@@ -46,9 +46,9 @@ class ChatService extends BaseCrudService {
     }));
   }
 
-  createPrivateChat(group, data) {
-    return userService.get(data.userId).then(otherUser => {
-      if (otherUser._id.equals(this.currentUser._id)) {
+  createPrivateChat(user, group, data) {
+    return userService.get(user, data.userId).then(otherUser => {
+      if (otherUser._id.equals(user._id)) {
         throw new APIError('You can not create chat with yourself', 400);
       }
 
@@ -63,7 +63,7 @@ class ChatService extends BaseCrudService {
       }
 
       return ChatModel.findOne({
-        users: { $all: [this.currentUser._id, otherUser._id] },
+        users: { $all: [user._id, otherUser._id] },
         group: group._id,
         type: CHAT_TYPES.PRIVATE
       }).then(existingChat => {
@@ -73,21 +73,26 @@ class ChatService extends BaseCrudService {
 
         const chat = new ChatModel({
           group: group._id,
-          createdBy: this.currentUser._id,
-          users: [this.currentUser._id, data.userId]
+          createdBy: user._id,
+          users: [user._id, data.userId]
         });
 
         return chat
           .save()
           .then(() =>
-            this._createPrivateChatOnFirebase(chat._id.toString(), group, data)
+            this._createPrivateChatOnFirebase(
+              user,
+              chat._id.toString(),
+              group,
+              data
+            )
           )
           .then(() => chat);
       });
     });
   }
 
-  createGroupChat(group) {
+  createGroupChat(user, group) {
     const chat = new ChatModel({
       type: CHAT_TYPES.GROUP,
       group: group._id
@@ -95,13 +100,13 @@ class ChatService extends BaseCrudService {
 
     return chat
       .save()
-      .then(() => this._createGroupChatOnFirebase(group))
+      .then(() => this._createGroupChatOnFirebase(user, group))
       .then(() => chat);
   }
 
-  getPrivateChats(group) {
+  getPrivateChats(user, group) {
     return ChatModel.find({
-      users: this.currentUser._id,
+      users: user._id,
       group: group._id,
       type: CHAT_TYPES.PRIVATE
     });

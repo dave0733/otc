@@ -55,21 +55,21 @@ class MessageService extends BaseService {
     return prom;
   }
 
-  createFileMessage(chat, data, file) {
+  createFileMessage(user, chat, data, file) {
     return this._uploadImageToStorage(chat, file, data.filename).then(
       fileInfo => {
-        return this.create(chat, data, {
+        return this.create(user, chat, data, {
           file: fileInfo
         });
       }
     );
   }
 
-  create(chat, data, extra) {
+  create(user, chat, data, extra) {
     const users = chat.users.map(u => u.toString());
     if (
       chat.type !== CHAT_TYPES.GROUP &&
-      !users.includes(this.currentUser._id.toString())
+      !users.includes(user._id.toString())
     ) {
       return Promise.reject(
         new APIError('You are not authorized to send message here', 403)
@@ -85,7 +85,7 @@ class MessageService extends BaseService {
 
     const msgData = {
       type: MESSAGE_TYPES.TEXT,
-      sender_id: this.currentUser._id.toString(),
+      sender_id: user._id.toString(),
       text: data.text || null,
       extra: extra || null,
       created_at: new Date().valueOf(),
@@ -99,17 +99,17 @@ class MessageService extends BaseService {
     }));
   }
 
-  update(message, data) {
+  update(user, message, data) {
     const updateData = _.pick(data, ['text']);
     updateData.updated_at = new Date().valueOf();
     return message._ref.update(updateData);
   }
 
-  delete(message) {
+  delete(user, message) {
     return message._ref.delete();
   }
 
-  get(chat, id) {
+  get(user, chat, id) {
     const fs = firebase.getFirestore();
     const message = fs
       .collection('chats')
@@ -123,10 +123,7 @@ class MessageService extends BaseService {
       }
 
       const data = doc.data();
-      if (
-        !this._isAdmin() &&
-        data.sender_id !== this.currentUser._id.toString()
-      ) {
+      if (!this._isAdmin(user) && data.sender_id !== user._id.toString()) {
         throw new APIError('You are forbidden to this action', 403);
       }
 

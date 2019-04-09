@@ -9,26 +9,22 @@ class VouchController extends BaseCrudController {
   }
 
   create(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .create(req.body, req.offer)
+      .create(req.user, req.body, req.offer)
       .then(item => res.json(item))
       .catch(next);
   }
 
   acceptVouch(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     return this.dataService
-      .acceptVouch(req.vouch)
+      .acceptVouch(req.user, req.vouch)
       .then(result => res.json(result))
       .catch(next);
   }
 
   rejectVouch(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     return this.dataService
-      .rejectVouch(req.vouch)
+      .rejectVouch(req.user, req.vouch)
       .then(result => res.json(result))
       .catch(next);
   }

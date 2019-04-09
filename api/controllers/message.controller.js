@@ -9,9 +9,8 @@ class MessageController {
   }
 
   create(req, res, next) {
-    messageService.setCurrentUser(req.user);
     messageService
-      .create(req.chat, req.body)
+      .create(req.user, req.chat, req.body)
       .then(message => {
         res.json(message);
       })
@@ -19,9 +18,8 @@ class MessageController {
   }
 
   createFileMessage(req, res, next) {
-    messageService.setCurrentUser(req.user);
     messageService
-      .createFileMessage(req.chat, req.body, req.file)
+      .createFileMessage(req.user, req.chat, req.body, req.file)
       .then(message => {
         res.json(message);
       })
@@ -29,9 +27,8 @@ class MessageController {
   }
 
   update(req, res, next) {
-    messageService.setCurrentUser(req.user);
     messageService
-      .update(req.message, req.body)
+      .update(req.user, req.message, req.body)
       .then(message => {
         res.json(message);
       })
@@ -39,9 +36,8 @@ class MessageController {
   }
 
   delete(req, res, next) {
-    messageService.setCurrentUser(req.user);
     messageService
-      .delete(req.message)
+      .delete(req.user, req.message)
       .then(message => {
         res.json(message);
       })
@@ -49,9 +45,8 @@ class MessageController {
   }
 
   getByIdMiddleware(req, res, next, id) {
-    messageService.setCurrentUser(req.user);
     messageService
-      .get(req.chat, id)
+      .get(req.user, req.chat, id)
       .then(msg => {
         req.message = msg;
         next();
