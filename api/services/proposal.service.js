@@ -17,14 +17,14 @@ class ProposalService extends BaseCrudService {
     this.offerModel = mongoose.model('Offer');
   }
 
-  create(data, offer) {
-    if (offer.offeredBy.equals(this.currentUser.id)) {
+  create(user, data, offer) {
+    if (offer.offeredBy.equals(user._id)) {
       return Promise.reject(
         new APIError('You can not send proposal to your offer.', 403)
       );
     }
 
-    return super.create(data, { offer: offer._id }).then(proposal =>
+    return super.create(user, data, { offer: offer._id }).then(proposal =>
       this.offerModel
         .findOneAndUpdate(
           {
@@ -40,24 +40,24 @@ class ProposalService extends BaseCrudService {
     );
   }
 
-  update(proposal, data) {
-    return this.checkOwner(proposal).then(() => {
+  update(user, proposal, data) {
+    return this.checkOwner(user, proposal).then(() => {
       if (proposal.status !== PROPOSAL_STATUS.PENDING) {
         throw new APIError('You can only update proposal while pending', 400);
       }
 
-      return super.update(proposal, data);
+      return super.update(user, proposal, data);
     });
   }
 
-  remove(proposal) {
-    return this.checkOwner(proposal)
+  remove(user, proposal) {
+    return this.checkOwner(user, proposal)
       .then(() => {
         if (proposal.status !== PROPOSAL_STATUS.PENDING) {
           throw new APIError('You can only delete proposal while pending', 400);
         }
 
-        return super.remove(proposal);
+        return super.remove(user, proposal);
       })
       .then(() =>
         this.offerModel.findOneAndUpdate(

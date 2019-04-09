@@ -16,67 +16,60 @@ class OfferController extends BaseCrudController {
   }
 
   create(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .create(req.body, { group: req.group._id })
+      .create(req.user, req.body, { group: req.group._id })
       .then(item => res.json(item))
       .catch(next);
   }
 
   list(req, res, next) {
-    this.dataService.setGroup(req.group);
+    req.query.filters = req.query.filters || {};
+    req.query.filters.group = req.group._id;
 
     return super.list(req, res, next);
   }
 
   leaveFeedbackToProposal(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     const feedback = _.pick(req.body, ['timeline', 'communication', 'comment']);
     return this.dataService
-      .leaveFeedbackToProposal(req.offer, feedback)
+      .leaveFeedbackToProposal(req.user, req.offer, feedback)
       .then(result => res.json(result))
       .catch(next);
   }
 
   leaveFeedbackToOffer(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     const feedback = _.pick(req.body, ['timeline', 'communication', 'comment']);
     return this.dataService
-      .leaveFeedbackToOffer(req.offer, feedback)
+      .leaveFeedbackToOffer(req.user, req.offer, feedback)
       .then(result => res.json(result))
       .catch(next);
   }
 
   endListing(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     return this.dataService
-      .endListing(req.offer)
+      .endListing(req.user, req.offer)
       .then(result => res.json(result))
       .catch(next);
   }
 
   acceptProposal(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     return this.dataService
-      .acceptProposal(req.offer, req.proposal)
+      .acceptProposal(req.user, req.offer, req.proposal)
       .then(result => res.json(result))
       .catch(next);
   }
 
   rejectProposal(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
     return this.dataService
-      .rejectProposal(req.offer, req.proposal)
+      .rejectProposal(req.user, req.offer, req.proposal)
       .then(result => res.json(result))
       .catch(next);
   }
 
   getVouches(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
       .getVouches(
+        req.user,
         req.offer,
         req.query.filters,
         req.query.sorts,
@@ -88,10 +81,9 @@ class OfferController extends BaseCrudController {
   }
 
   getProposals(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
       .getProposals(
+        req.user,
         req.offer,
         req.query.filters,
         req.query.sorts,

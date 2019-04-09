@@ -9,10 +9,9 @@ class GroupController extends BaseCrudController {
   }
 
   getMembers(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
       .getMembers(
+        req.user,
         req.group._id,
         req.query.filters,
         req.query.sorts,

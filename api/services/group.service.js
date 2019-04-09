@@ -16,23 +16,23 @@ class GroupService extends BaseCrudService {
     );
   }
 
-  _listWhere(filters = {}) {
-    const where = super._listWhere(filters);
+  _listWhere(user, filters = {}) {
+    const where = super._listWhere(user, filters);
     delete where[this.userIdField];
 
     // force listing with status
-    if (!this._isAdmin()) {
+    if (!this._isAdmin(user)) {
       where.status = GROUP_STATUS.ACTIVE;
     }
 
     return where;
   }
 
-  create(data) {
-    return super.create(data).then(group => {
+  create(user, data) {
+    return super.create(user, data).then(group => {
       return permissionService
-        .addPermission(this.currentUser, group, GROUP_PERMISSION.ADMIN, true)
-        .then(() => chatService.createGroupChat(group))
+        .addPermission(user, group, GROUP_PERMISSION.ADMIN, true)
+        .then(() => chatService.createGroupChat(user, group))
         .then(chat => {
           group.chat = chat._id;
           return group.save();
@@ -41,12 +41,12 @@ class GroupService extends BaseCrudService {
     });
   }
 
-  get(id) {
-    return super.get(id).then(group => {
+  get(user, id) {
+    return super.get(user, id).then(group => {
       if (
         group.status !== GROUP_STATUS.ACTIVE &&
-        !this._isAdmin() &&
-        !this._isGroupAdmin(group)
+        !this._isAdmin(user) &&
+        !this._isGroupAdmin(user, group)
       ) {
         throw new APIError('Not found', 404);
       }
@@ -55,8 +55,9 @@ class GroupService extends BaseCrudService {
     });
   }
 
-  getMembers(groupid, filters = {}, sorts, skip, limit) {
+  getMembers(user, groupid, filters = {}, sorts, skip, limit) {
     return userService.list(
+      user,
       {
         ...filters,
         'groups.group': groupid

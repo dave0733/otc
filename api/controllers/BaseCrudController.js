@@ -16,19 +16,15 @@ class BaseCrudController {
   }
 
   create(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .create(req.body)
+      .create(req.user, req.body)
       .then(item => res.json(item))
       .catch(next);
   }
 
   update(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .update(req[this.varName], req.body)
+      .update(req.user, req[this.varName], req.body)
       .then(item => res.json(item))
       .catch(next);
   }
@@ -38,27 +34,28 @@ class BaseCrudController {
   }
 
   remove(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .remove(req[this.varName])
+      .remove(req.user, req[this.varName])
       .then(() => res.json({ success: true }))
       .catch(next);
   }
 
   list(req, res, next) {
-    this.dataService.setCurrentUser(req.user);
-
     return this.dataService
-      .list(req.query.filters, req.query.sorts, req.query.skip, req.query.limit)
+      .list(
+        req.user,
+        req.query.filters,
+        req.query.sorts,
+        req.query.skip,
+        req.query.limit
+      )
       .then(items => res.json(items))
       .catch(next);
   }
 
   getByIdMiddleware(req, res, next, id) {
-    this.dataService.setCurrentUser(req.user);
     this.dataService
-      .get(id)
+      .get(req.user, id)
       .then(item => {
         req[this.varName] = item;
         next();

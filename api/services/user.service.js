@@ -24,19 +24,19 @@ class UserService extends BaseCrudService {
     this.updateFeedback = this.updateFeedback.bind(this);
   }
 
-  create(data) {
+  create(user, data) {
     const Model = this.model;
     const createData = {};
     const { password } = data;
 
-    const user = new Model(
+    const newUser = new Model(
       Object.assign(createData, _.pick(data, this.fields))
     );
 
-    user.username = data.email;
+    newUser.username = data.email;
 
     return new Promise((resolve, reject) => {
-      Model.register(user, password, (err, account) => {
+      Model.register(newUser, password, (err, account) => {
         if (err) {
           reject(err);
         } else {
