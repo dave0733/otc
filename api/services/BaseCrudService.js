@@ -147,7 +147,7 @@ class BaseCrudService extends BaseService {
     return Promise.all([
       Model.find(useRawFilter ? filters : where)
         .select(select)
-        .populate(this.listPopulateField || listPopulateField)
+        .populate(listPopulateField || this.listPopulateField)
         .sort(sort)
         .skip(skip * 1 || 0)
         .limit(limit * 1 || 20)

@@ -253,7 +253,10 @@ class OfferService extends BaseCrudService {
 
     newFilters.offer = offer._id;
 
-    return vouchService.list(user, newFilters, sort, skip, limit, true);
+    return vouchService.list(user, newFilters, sort, skip, limit, true, [
+      { path: 'requestedTo', select: 'firstName lastName' },
+      { path: 'offer', select: 'have want status' }
+    ]);
   }
 
   getProposals(user, offer, filters, sort, skip, limit) {
@@ -264,7 +267,10 @@ class OfferService extends BaseCrudService {
 
     newFilters.offer = offer._id;
 
-    return proposalService.list(user, newFilters, sort, skip, limit, true);
+    return proposalService.list(user, newFilters, sort, skip, limit, true, [
+      { path: 'proposedBy', select: 'firstName lastName' },
+      { path: 'offer', select: 'have want status' }
+    ]);
   }
 }
 
