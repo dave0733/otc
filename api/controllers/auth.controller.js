@@ -7,6 +7,8 @@ const APIError = require('../utils/api-error');
 const firebase = require('../utils/firebase');
 const AuthService = require('../services/auth.service');
 const userService = require('../services/user.service');
+const permissionService = require('../services/permission.service');
+const GROUP_PERMISSION = require('../constants/group-permission');
 
 const User = mongoose.model('User');
 
@@ -62,38 +64,60 @@ function login(req, res, next) {
         expiresIn: config.jwtExpiresIn
       });
 
-      return firebase
-        .generateToken({
-          _id: user._id,
-          role: user.role,
-          groups: (user.groups || []).map(g => g.group)
-        })
-        .then(firebaseToken => {
-          res.json({
-            user: user.toSafeJSON(),
-            token,
-            firebaseToken
-          });
-        })
-        .catch(err2 => next(err2));
+      return permissionService.getPermissions(user).then(result => {
+        const groups = result.groups
+          .filter(
+            p =>
+              (p.permission === GROUP_PERMISSION.MEMBER ||
+                p.permission === GROUP_PERMISSION.ADMIN) &&
+              p.group.chat
+          )
+          .map(p => p.group.chat.toString());
+
+        return firebase
+          .generateToken({
+            _id: user._id,
+            role: user.role,
+            groups
+          })
+          .then(firebaseToken => {
+            res.json({
+              user: user.toSafeJSON(),
+              token,
+              firebaseToken
+            });
+          })
+          .catch(err2 => next(err2));
+      });
     });
   })(req, res);
 }
 
 function refreshFirebaseToken(req, res, next) {
   const { user } = req;
-  return firebase
-    .generateToken({
-      _id: user._id,
-      role: user.role,
-      groups: (user.groups || []).map(g => g.group)
-    })
-    .then(firebaseToken => {
-      res.json({
-        firebaseToken
-      });
-    })
-    .catch(err => next(err));
+  return permissionService.getPermissions(user).then(result => {
+    const groups = result.groups
+      .filter(
+        p =>
+          (p.permission === GROUP_PERMISSION.MEMBER ||
+            p.permission === GROUP_PERMISSION.ADMIN) &&
+          p.group.chat
+      )
+      .map(p => p.group.chat.toString());
+
+    return firebase
+      .generateToken({
+        _id: user._id,
+        role: user.role,
+        groups
+      })
+      .then(firebaseToken => {
+        res.json({
+          firebaseToken
+        });
+      })
+      .catch(err => next(err));
+  });
 }
 
 function requestResetPassword(req, res, next) {
