@@ -1,13 +1,12 @@
 const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
-const groupService = require('./group.service');
+const userService = require('./user.service');
 const permUtils = require('../utils/permission');
 const notify = require('../utils/notify');
 const GROUP_PERMISSION = require('../constants/group-permission');
 const GROUP_STATUS = require('../constants/group-status');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
 
-// @TODO notification for received_application, rejected_application
 class PermisisonService {
   constructor() {
     this.userModel = mongoose.model('User');
@@ -33,6 +32,25 @@ class PermisisonService {
         name: group.name
       }
     });
+  }
+
+  getAdmins(user, groupid, filters = {}, sorts, skip, limit) {
+    return userService.list(
+      user,
+      groupid,
+      {
+        ...filters,
+        groups: {
+          $elemMatch: {
+            permission: GROUP_PERMISSION.ADMIN,
+            group: groupid
+          }
+        }
+      },
+      sorts,
+      skip,
+      limit
+    );
   }
 
   addPermission(user, group, permission, isForced) {
@@ -144,7 +162,7 @@ class PermisisonService {
 
     return this.addPermission(user, group, GROUP_PERMISSION.APPLIED).then(
       () => {
-        groupService.getAdmins(user, group._id).then(result => {
+        this.getAdmins(user, group._id).then(result => {
           result.data.forEach(admin => {
             return notify.send(
               admin,
