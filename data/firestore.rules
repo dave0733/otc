@@ -33,7 +33,7 @@ service cloud.firestore {
       }
 
       match /messages/{document=**} {
-        allow read: if hasUserAccess(chatData().user_ids);
+        allow read: if (hasGroupAccess(chat) || hasUserAccess(chatData().user_ids));
       }
     }
 
