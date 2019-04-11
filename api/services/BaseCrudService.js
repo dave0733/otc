@@ -129,7 +129,16 @@ class BaseCrudService extends BaseService {
     return this.model.count(where);
   }
 
-  list(user, filters, sorts, skip, limit, useRawFilter = false) {
+  list(
+    user,
+    filters,
+    sorts,
+    skip,
+    limit,
+    useRawFilter = false,
+    listPopulateField = '',
+    select = undefined
+  ) {
     const Model = this.model;
 
     const where = this._listWhere(user, filters || {});
@@ -137,12 +146,13 @@ class BaseCrudService extends BaseService {
 
     return Promise.all([
       Model.find(useRawFilter ? filters : where)
-        .populate(this.listPopulateField)
+        .select(select)
+        .populate(this.listPopulateField || listPopulateField)
         .sort(sort)
         .skip(skip * 1 || 0)
         .limit(limit * 1 || 20)
         .lean(),
-      Model.count(where)
+      Model.count(useRawFilter ? filters : where)
     ]).then(results => {
       const [items, total] = results;
 

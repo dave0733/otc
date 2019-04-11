@@ -1,9 +1,13 @@
 const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
+const groupService = require('./group.service');
 const permUtils = require('../utils/permission');
+const notify = require('../utils/notify');
 const GROUP_PERMISSION = require('../constants/group-permission');
 const GROUP_STATUS = require('../constants/group-status');
+const NOTIFICATION_TYPE = require('../constants/notification-type');
 
+// @TODO notification for received_application, rejected_application
 class PermisisonService {
   constructor() {
     this.userModel = mongoose.model('User');
@@ -20,6 +24,15 @@ class PermisisonService {
     this.revokeApplication = this.revokeApplication.bind(this);
     this.revokeAdminAccess = this.revokeAdminAccess.bind(this);
     this.revokeBan = this.revokeBan.bind(this);
+  }
+
+  _notify(user, group, type) {
+    return notify.send(user, type, {
+      group: {
+        id: group._id.toString(),
+        name: group.name
+      }
+    });
   }
 
   addPermission(user, group, permission, isForced) {
@@ -92,7 +105,11 @@ class PermisisonService {
   }
 
   revokeMemberAccess(user, group) {
-    return this.removePermission(user, group, GROUP_PERMISSION.MEMBER);
+    return this.removePermission(user, group, GROUP_PERMISSION.MEMBER).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.REVOKED_MEMBER);
+      }
+    );
   }
 
   revokeApplication(user, group) {
@@ -100,11 +117,19 @@ class PermisisonService {
   }
 
   revokeAdminAccess(user, group) {
-    return this.removePermission(user, group, GROUP_PERMISSION.ADMIN);
+    return this.removePermission(user, group, GROUP_PERMISSION.ADMIN).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.REVOKED_ADMIN);
+      }
+    );
   }
 
   revokeBan(user, group) {
-    return this.removePermission(user, group, GROUP_PERMISSION.BANNED);
+    return this.removePermission(user, group, GROUP_PERMISSION.BANNED).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.UNBANNED);
+      }
+    );
   }
 
   applyForGroup(user, group) {
@@ -117,19 +142,53 @@ class PermisisonService {
       );
     }
 
-    return this.addPermission(user, group, GROUP_PERMISSION.APPLIED);
+    return this.addPermission(user, group, GROUP_PERMISSION.APPLIED).then(
+      () => {
+        groupService.getAdmins(user, group._id).then(result => {
+          result.data.forEach(admin => {
+            return notify.send(
+              admin,
+              NOTIFICATION_TYPE.PERMISSION.RECEIVED_APPLICATION,
+              {
+                group: {
+                  id: group._id.toString(),
+                  name: group.name
+                },
+                user: {
+                  id: user._id.toString(),
+                  firstName: user.firstName,
+                  lastName: user.lastName
+                }
+              }
+            );
+          });
+        });
+      }
+    );
   }
 
   banFromGroup(user, group) {
-    return this.upsertPermission(user, group, GROUP_PERMISSION.BANNED);
+    return this.upsertPermission(user, group, GROUP_PERMISSION.BANNED).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.BANNED);
+      }
+    );
   }
 
   makeAdminForGroup(user, group) {
-    return this.upsertPermission(user, group, GROUP_PERMISSION.ADMIN);
+    return this.upsertPermission(user, group, GROUP_PERMISSION.ADMIN).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.GRANTED_ADMIN);
+      }
+    );
   }
 
   makeMemberForGroup(user, group) {
-    return this.upsertPermission(user, group, GROUP_PERMISSION.MEMBER);
+    return this.upsertPermission(user, group, GROUP_PERMISSION.MEMBER).then(
+      () => {
+        this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.GRANTED_MEMBER);
+      }
+    );
   }
 }
 

@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const APIError = require('../utils/api-error');
+const notify = require('../utils/notify');
 const VOUCH_STATUS = require('../constants/vouch-status');
+const NOTIFICATION_TYPE = require('../constants/notification-type');
 
 // @TODO check against requestTo connection
 class VouchService extends BaseCrudService {
@@ -19,7 +21,26 @@ class VouchService extends BaseCrudService {
     this.rejectVouch = this.rejectVouch.bind(this);
   }
 
-  create(user, data, offer) {
+  _notify(to, type, user, group, offer) {
+    return notify.send(to, type, {
+      group: {
+        id: group._id.toString(),
+        name: group.name
+      },
+      user: {
+        id: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      offer: {
+        id: offer._id.toString(),
+        have: offer.have,
+        want: offer.want
+      }
+    });
+  }
+
+  create(user, data, offer, group) {
     if (!offer.offeredBy.equals(user._id)) {
       return Promise.reject(
         new APIError('You can only send vouch for your offer.', 403)
@@ -44,7 +65,16 @@ class VouchService extends BaseCrudService {
             }
           }
         )
-        .then(() => vouch)
+        .then(() => {
+          this._notify(
+            data.requestedTo,
+            NOTIFICATION_TYPE.VOUCH.RECEIVED,
+            user,
+            group,
+            offer
+          );
+          return vouch;
+        })
     );
   }
 
@@ -71,26 +101,48 @@ class VouchService extends BaseCrudService {
       );
   }
 
-  acceptVouch(user, vouch) {
-    return this.checkOwner(user, vouch, 'requestedTo').then(() => {
-      if (vouch.status !== VOUCH_STATUS.PENDING) {
-        throw new APIError('You can only accept pending vouch.', 400);
-      }
+  acceptVouch({ user, vouch, group, offer }) {
+    return this.checkOwner(user, vouch, 'requestedTo')
+      .then(() => {
+        if (vouch.status !== VOUCH_STATUS.PENDING) {
+          throw new APIError('You can only accept pending vouch.', 400);
+        }
 
-      vouch.status = VOUCH_STATUS.ACTIVE;
-      return vouch.save();
-    });
+        vouch.status = VOUCH_STATUS.ACTIVE;
+        return vouch.save();
+      })
+      .then(result => {
+        this._notify(
+          vouch.requestedBy,
+          NOTIFICATION_TYPE.VOUCH.ACCEPTED,
+          user,
+          group,
+          offer
+        );
+        return result;
+      });
   }
 
-  rejectVouch(user, vouch) {
-    return this.checkOwner(vouch, 'requestedTo').then(() => {
-      if (vouch.status !== VOUCH_STATUS.PENDING) {
-        throw new APIError('You can only reject pending vouch.', 400);
-      }
+  rejectVouch({ user, vouch, group, offer }) {
+    return this.checkOwner(vouch, 'requestedTo')
+      .then(() => {
+        if (vouch.status !== VOUCH_STATUS.PENDING) {
+          throw new APIError('You can only reject pending vouch.', 400);
+        }
 
-      vouch.status = VOUCH_STATUS.REJECTED;
-      return vouch.save();
-    });
+        vouch.status = VOUCH_STATUS.REJECTED;
+        return vouch.save();
+      })
+      .then(result => {
+        this._notify(
+          vouch.requestedBy,
+          NOTIFICATION_TYPE.VOUCH.REJECTED,
+          user,
+          group,
+          offer
+        );
+        return result;
+      });
   }
 }
 
