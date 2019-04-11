@@ -102,6 +102,7 @@ function refreshFirebaseToken(req, res, next) {
         p =>
           (p.permission === GROUP_PERMISSION.MEMBER ||
             p.permission === GROUP_PERMISSION.ADMIN) &&
+          p.group &&
           p.group.chat
       )
       .map(p => p.group.chat.toString());
