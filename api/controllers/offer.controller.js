@@ -13,11 +13,13 @@ class OfferController extends BaseCrudController {
     this.rejectProposal = this.rejectProposal.bind(this);
     this.getVouches = this.getVouches.bind(this);
     this.getProposals = this.getProposals.bind(this);
+    this.listMyOffers = this.listMyOffers.bind(this);
+    this.listFeedback = this.listFeedback.bind(this);
   }
 
   create(req, res, next) {
     return this.dataService
-      .create(req.user, req.body, { group: req.group._id })
+      .create(req.user, req.group, req.body)
       .then(item => res.json(item))
       .catch(next);
   }
@@ -29,10 +31,50 @@ class OfferController extends BaseCrudController {
     return super.list(req, res, next);
   }
 
+  listMyOffers(req, res, next) {
+    req.query.filters = req.query.filters || {};
+    req.query.filters.offeredBy = req.user._id;
+    return super.list(req, res, next);
+  }
+
+  listFeedback(req, res, next) {
+    return this.dataService
+      .list(
+        req.user,
+        {
+          status: 'ENDED',
+          feedbackToOffer: {
+            $exists: true
+          },
+          feedbackToProposal: {
+            $exists: true
+          },
+          $or: [{ offeredBy: req.user._id }, { counterpart: req.user._id }]
+        },
+        req.query.sorts,
+        req.query.skip,
+        req.query.limit,
+        true,
+        [
+          { path: 'group', select: 'name' },
+          { path: 'offeredBy', select: 'firstName lastName' },
+          { path: 'counterpart', select: 'firstName lastName' }
+        ],
+        'group offeredBy feedbackToOffer feedbackToProposal counterpart updatedAt createdAt'
+      )
+      .then(result => res.json(result))
+      .catch(next);
+  }
+
   leaveFeedbackToProposal(req, res, next) {
     const feedback = _.pick(req.body, ['timeline', 'communication', 'comment']);
     return this.dataService
-      .leaveFeedbackToProposal(req.user, req.offer, feedback)
+      .leaveFeedbackToProposal({
+        user: req.user,
+        offer: req.offer,
+        feedback,
+        group: req.group
+      })
       .then(result => res.json(result))
       .catch(next);
   }
@@ -40,28 +82,47 @@ class OfferController extends BaseCrudController {
   leaveFeedbackToOffer(req, res, next) {
     const feedback = _.pick(req.body, ['timeline', 'communication', 'comment']);
     return this.dataService
-      .leaveFeedbackToOffer(req.user, req.offer, feedback)
+      .leaveFeedbackToOffer({
+        user: req.user,
+        offer: req.offer,
+        feedback,
+        group: req.group
+      })
       .then(result => res.json(result))
       .catch(next);
   }
 
   endListing(req, res, next) {
     return this.dataService
-      .endListing(req.user, req.offer)
+      .endListing({
+        user: req.user,
+        offer: req.offer,
+        group: req.group
+      })
       .then(result => res.json(result))
       .catch(next);
   }
 
   acceptProposal(req, res, next) {
     return this.dataService
-      .acceptProposal(req.user, req.offer, req.proposal)
+      .acceptProposal({
+        user: req.user,
+        offer: req.offer,
+        proposal: req.proposal,
+        group: req.group
+      })
       .then(result => res.json(result))
       .catch(next);
   }
 
   rejectProposal(req, res, next) {
     return this.dataService
-      .rejectProposal(req.user, req.offer, req.proposal)
+      .rejectProposal({
+        user: req.user,
+        offer: req.offer,
+        proposal: req.proposal,
+        group: req.group
+      })
       .then(result => res.json(result))
       .catch(next);
   }
