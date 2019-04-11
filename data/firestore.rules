@@ -13,7 +13,7 @@ service cloud.firestore {
     }
 
     function hasGroupAccess(group){
-      return isAuthenticated() && rgroup in request.auth.token.groups;
+      return isAuthenticated() && group in request.auth.token.groups;
     }
 
     // prohibit reading and writing by default
