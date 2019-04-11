@@ -3,8 +3,12 @@ const vouchService = require('./vouch.service');
 const proposalService = require('./proposal.service');
 const userService = require('./user.service');
 const APIError = require('../utils/api-error');
+const notify = require('../utils/notify');
+const messageService = require('./message.service');
 const OFFER_STATUS = require('../constants/offer-status');
 const PROPOSAL_STATUS = require('../constants/proposal-status');
+const MESSAGE_TYPE = require('../constants/message-type');
+const NOTIFICATION_TYPE = require('../constants/notification-type');
 
 class OfferService extends BaseCrudService {
   constructor() {
@@ -21,6 +25,41 @@ class OfferService extends BaseCrudService {
     this.rejectProposal = this.rejectProposal.bind(this);
     this.getVouches = this.getVouches.bind(this);
     this.getProposals = this.getProposals.bind(this);
+  }
+
+  _notify(to, type, user, group, offer) {
+    return notify.send(to, type, {
+      group: {
+        id: group._id.toString(),
+        name: group.name
+      },
+      user: {
+        id: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      offer: {
+        id: offer._id.toString(),
+        have: offer.have,
+        want: offer.want
+      }
+    });
+  }
+
+  create(user, group, data) {
+    return super.create(user, data, { group: group._id }).then(offer => {
+      messageService._createSystemMessage(
+        group.chat.toString(),
+        MESSAGE_TYPE.OFFER,
+        {
+          id: offer._id.toString(),
+          have: offer.have,
+          want: offer.want,
+          note: offer.note || null
+        }
+      );
+      return offer;
+    });
   }
 
   update(user, offer, data) {
@@ -52,18 +91,33 @@ class OfferService extends BaseCrudService {
     return where;
   }
 
-  endListing(user, offer) {
-    return this.checkOwner(user, offer).then(() => {
-      if (offer.status !== OFFER_STATUS.ACTIVE) {
-        throw new APIError('You can only end an active offer.', 400);
-      }
+  endListing({ user, offer, group }) {
+    return this.checkOwner(user, offer)
+      .then(() => {
+        if (offer.status !== OFFER_STATUS.ACTIVE) {
+          throw new APIError('You can only end an active offer.', 400);
+        }
 
-      offer.status = OFFER_STATUS.ENDED;
-      return offer.save();
-    });
+        offer.status = OFFER_STATUS.ENDED;
+        return offer.save();
+      })
+      .then(result => {
+        this.getProposals(user, offer).then(proposals => {
+          proposals.data.forEach(p => {
+            this._notify(
+              p.proposedBy,
+              NOTIFICATION_TYPE.OFFER.ENDED,
+              user,
+              group,
+              offer
+            );
+          });
+        });
+        return result;
+      });
   }
 
-  leaveFeedbackToProposal(user, offer, feedback) {
+  leaveFeedbackToProposal({ user, offer, feedback, group }) {
     return this.checkOwner(user, offer)
       .then(() => {
         if (offer.status !== OFFER_STATUS.ENDED) {
@@ -81,10 +135,19 @@ class OfferService extends BaseCrudService {
         return offer.save();
       })
       .then(() => userService.updateFeedback(offer.counterpart, feedback))
-      .then(() => offer);
+      .then(() => {
+        this._notify(
+          offer.counterpart,
+          NOTIFICATION_TYPE.PROPOSAL.FEEDBACK,
+          user,
+          group,
+          offer
+        );
+        return offer;
+      });
   }
 
-  leaveFeedbackToOffer(user, offer, feedback) {
+  leaveFeedbackToOffer({ user, offer, feedback, group }) {
     return this.checkOwner(user, offer, 'counterpart')
       .then(() => {
         if (offer.status !== OFFER_STATUS.ENDED) {
@@ -102,10 +165,19 @@ class OfferService extends BaseCrudService {
         return offer.save();
       })
       .then(() => userService.updateFeedback(offer.offeredBy, feedback))
-      .then(() => offer);
+      .then(() => {
+        this._notify(
+          offer.offeredBy,
+          NOTIFICATION_TYPE.OFFER.FEEDBACK,
+          user,
+          group,
+          offer
+        );
+        return offer;
+      });
   }
 
-  acceptProposal(user, offer, proposal) {
+  acceptProposal({ user, offer, proposal, group }) {
     return this.checkOwner(user, offer).then(() => {
       if (offer.status !== OFFER_STATUS.PENDING) {
         throw new APIError(
@@ -128,11 +200,20 @@ class OfferService extends BaseCrudService {
 
       proposal.status = PROPOSAL_STATUS.ACTIVE;
 
-      return Promise.all([offer.save(), proposal.save()]).then(() => offer);
+      return Promise.all([offer.save(), proposal.save()]).then(() => {
+        this._notify(
+          proposal.proposedBy,
+          NOTIFICATION_TYPE.PROPOSAL.ACCEPTED,
+          user,
+          group,
+          offer
+        );
+        return offer;
+      });
     });
   }
 
-  rejectProposal(user, offer, proposal) {
+  rejectProposal({ user, offer, proposal, group }) {
     return this.checkOwner(offer).then(() => {
       if (
         offer.status !== OFFER_STATUS.PENDING &&
@@ -150,7 +231,16 @@ class OfferService extends BaseCrudService {
 
       proposal.status = PROPOSAL_STATUS.REJECTED;
 
-      return proposal.save().then(() => offer);
+      return proposal.save().then(() => {
+        this._notify(
+          proposal.proposedBy,
+          NOTIFICATION_TYPE.PROPOSAL.REJECTED,
+          user,
+          group,
+          offer
+        );
+        return offer;
+      });
     });
   }
 

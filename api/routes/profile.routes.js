@@ -17,9 +17,9 @@ router.route('/change-password').post(profileCtrl.changePassword);
 router.route('/refresh-firebase-token').get(authCtrl.refreshFirebaseToken);
 
 router.route('/permissions').get(profileCtrl.getPermissions);
-router.route('/my-groups/:groupid/offers').get(offerCtrl.list);
+router.route('/offers').get(offerCtrl.listMyOffers);
 router.route('/my-groups/:groupid/proposals').get(proposalCtrl.list);
-router.route('/my-groups/:groupid/vouches').get(vouchCtrl.list);
+router.route('/my-groups/:groupid/vouches').get(vouchCtrl.listRequestedVouches);
 
 router
   .route('/permissions/:groupid/apply')

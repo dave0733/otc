@@ -10,9 +10,12 @@ class MessageService extends BaseService {
   constructor() {
     super();
     this.create = this.create.bind(this);
+    this.createFileMessage = this.createFileMessage.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
     this.get = this.get.bind(this);
+    this._createSystemMessage = this._createSystemMessage.bind(this);
+    this._uploadImageToStorage = this._uploadImageToStorage.bind(this);
   }
 
   _uploadImageToStorage(chat, file, originalName) {
@@ -53,6 +56,27 @@ class MessageService extends BaseService {
     });
 
     return prom;
+  }
+
+  _createSystemMessage(chatID, type, extra) {
+    const fs = firebase.getFirestore();
+    const message = fs
+      .collection('chats')
+      .doc(chatID.toString())
+      .collection('messages')
+      .doc();
+
+    const msgData = {
+      type,
+      extra: extra || null,
+      created_at: new Date().valueOf(),
+      updated_at: new Date().valueOf()
+    };
+
+    return message.set(msgData).then(() => ({
+      ...msgData,
+      id: message.id
+    }));
   }
 
   createFileMessage(user, chat, data, file) {

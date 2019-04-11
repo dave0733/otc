@@ -40,7 +40,7 @@ class ProfileController {
   applyForGroup(req, res, next) {
     return permissionService
       .applyForGroup(req.user, req.group)
-      .then(result => res.json(result))
+      .then(() => res.json({ success: true }))
       .catch(next);
   }
 

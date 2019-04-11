@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const APIError = require('../utils/api-error');
+const notify = require('../utils/notify');
 const PROPOSAL_STATUS = require('../constants/proposal-status');
+const NOTIFICATION_TYPE = require('../constants/notification-type');
 
 class ProposalService extends BaseCrudService {
   constructor() {
@@ -17,7 +19,31 @@ class ProposalService extends BaseCrudService {
     this.offerModel = mongoose.model('Offer');
   }
 
-  create(user, data, offer) {
+  _notify(to, type, user, group, offer, proposal) {
+    return notify.send(to, type, {
+      group: {
+        id: group._id.toString(),
+        name: group.name
+      },
+      user: {
+        id: user._id.toString(),
+        firstName: user.firstName,
+        lastName: user.lastName
+      },
+      offer: {
+        id: offer._id.toString(),
+        have: offer.have,
+        want: offer.want
+      },
+      proposal: {
+        id: proposal._id.toString(),
+        have: proposal.have,
+        want: proposal.want
+      }
+    });
+  }
+
+  create(user, data, offer, group) {
     if (offer.offeredBy.equals(user._id)) {
       return Promise.reject(
         new APIError('You can not send proposal to your offer.', 403)
@@ -36,7 +62,17 @@ class ProposalService extends BaseCrudService {
             }
           }
         )
-        .then(() => proposal)
+        .then(() => {
+          this._notify(
+            offer.offeredBy,
+            NOTIFICATION_TYPE.PROPOSAL.RECEIVED,
+            user,
+            group,
+            offer,
+            proposal
+          );
+          return proposal;
+        })
     );
   }
 

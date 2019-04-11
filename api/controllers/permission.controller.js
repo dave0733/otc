@@ -11,21 +11,21 @@ class PermissionController {
   makeMemberForGroup(req, res, next) {
     return permissionService
       .makeMemberForGroup(req.queryUser, req.group)
-      .then(result => res.json(result))
+      .then(() => res.json({ success: true }))
       .catch(next);
   }
 
   makeAdminForGroup(req, res, next) {
     return permissionService
       .makeAdminForGroup(req.queryUser, req.group)
-      .then(result => res.json(result))
+      .then(() => res.json({ success: true }))
       .catch(next);
   }
 
   banFromGroup(req, res, next) {
     return permissionService
       .banFromGroup(req.queryUser, req.group)
-      .then(result => res.json(result))
+      .then(() => res.json({ success: true }))
       .catch(next);
   }
 
