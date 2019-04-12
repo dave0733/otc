@@ -30,6 +30,13 @@ class ProfileController {
       .catch(next);
   }
 
+  update2FA(req, res, next) {
+    userService
+      .update2FA(req.user, req.body.token)
+      .then(() => res.json({ success: true }))
+      .catch(next);
+  }
+
   getPermissions(req, res, next) {
     return permissionService
       .getPermissions(req.user)
