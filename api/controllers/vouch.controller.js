@@ -14,6 +14,7 @@ class VouchController extends BaseCrudController {
       .list(
         req.user,
         {
+          group: req.group._id,
           requestedTo: req.user._id
         },
         req.query.sorts,
