@@ -1,8 +1,12 @@
 const passport = require('passport');
+const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
 const permUtils = require('../utils/permission');
+const googleAuthenticator = require('../utils/google-authenticator');
 const ROLES = require('../constants/roles');
 const GROUP_PERMISSION = require('../constants/group-permission');
+
+const User = mongoose.model('User');
 
 const isLoggedin = passport.authenticate('jwt', { session: false });
 
@@ -57,6 +61,39 @@ const isMe = (req, res, next) => {
   return next(new APIError('You are forbidden to access this resource', 403));
 };
 
+const is2FA = (required = true) => (req, res, next) => {
+  if (permUtils.isAdmin(req.user)) {
+    return next();
+  }
+
+  return User.findById(req.user._id)
+    .select('googleAuthenticator')
+    .lean()
+    .then(result => result && result.googleAuthenticator)
+    .then(authToken => {
+      if (!authToken) {
+        if (required) {
+          return next(
+            new APIError(
+              'Please set up 2FA in your account settings to continue.',
+              403
+            )
+          );
+        }
+
+        return next();
+      }
+
+      if (
+        !googleAuthenticator.authenticate(authToken, req.headers['2fa-auth'])
+      ) {
+        return next(new APIError('2FA failed', 403));
+      }
+
+      return next();
+    });
+};
+
 module.exports = {
   isLoggedin,
   isAdmin,
@@ -66,5 +103,6 @@ module.exports = {
   hasAccess,
   hasGroupAccess,
   isGroupAdmin,
-  isGroupMember
+  isGroupMember,
+  is2FA
 };
