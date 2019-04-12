@@ -5,6 +5,7 @@ const groupCtrl = require('../controllers/group.controller');
 const offerCtrl = require('../controllers/offer.controller');
 const proposalCtrl = require('../controllers/proposal.controller');
 const vouchCtrl = require('../controllers/vouch.controller');
+const { is2FA } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
@@ -29,6 +30,8 @@ router
 router
   .route('/permissions/:groupid/member')
   .delete(profileCtrl.revokeMemberAccess);
+
+router.route('/2fa').put(is2FA(false), profileCtrl.update2FA);
 
 router.param('groupid', groupCtrl.getByIdMiddleware);
 module.exports = router;

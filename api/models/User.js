@@ -71,6 +71,7 @@ const userSchema = new Schema(
     },
 
     // security
+    googleAuthenticator: { type: String, select: false },
     resetToken: { type: String, select: false },
     resetExpires: { type: Date, select: false },
     lastPasswordChange: { type: Date },
@@ -110,6 +111,9 @@ userSchema.methods.toSafeJSON = function toSafeJSON() {
 
   delete json.salt;
   delete json.hash;
+  delete json.googleAuthenticator;
+  delete json.verificationToken;
+  delete json.resetToken;
 
   return json;
 };

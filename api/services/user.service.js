@@ -64,6 +64,18 @@ class UserService extends BaseCrudService {
     user.lastFeedback = new Date();
     return user.save();
   }
+
+  update2FA(user, base32) {
+    user.googleAuthenticator = base32;
+    return user.save();
+  }
+
+  get2FA(user) {
+    return this.model
+      .findById(user._id)
+      .select('googleAuthenticator')
+      .lean();
+  }
 }
 
 module.exports = new UserService();
