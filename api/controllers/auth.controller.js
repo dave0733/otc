@@ -5,6 +5,7 @@ const _ = require('lodash');
 const config = require('../../config');
 const APIError = require('../utils/api-error');
 const firebase = require('../utils/firebase');
+const googleAuthenticator = require('../utils/google-authenticator');
 const AuthService = require('../services/auth.service');
 const userService = require('../services/user.service');
 const permissionService = require('../services/permission.service');
@@ -38,6 +39,26 @@ function register(req, res, next) {
   });
 }
 
+function generateUserFirebaseToken(user) {
+  return permissionService.getPermissions(user).then(result => {
+    const groups = result.groups
+      .filter(
+        p =>
+          (p.permission === GROUP_PERMISSION.MEMBER ||
+            p.permission === GROUP_PERMISSION.ADMIN) &&
+          p.group &&
+          p.group.chat
+      )
+      .map(p => p.group.chat.toString());
+
+    return firebase.generateToken({
+      _id: user._id,
+      role: user.role,
+      groups
+    });
+  });
+}
+
 function login(req, res, next) {
   const { email, password } = req.body;
 
@@ -64,62 +85,28 @@ function login(req, res, next) {
         expiresIn: config.jwtExpiresIn
       });
 
-      return permissionService.getPermissions(user).then(result => {
-        const groups = result.groups
-          .filter(
-            p =>
-              (p.permission === GROUP_PERMISSION.MEMBER ||
-                p.permission === GROUP_PERMISSION.ADMIN) &&
-              p.group &&
-              p.group.chat
-          )
-          .map(p => p.group.chat.toString());
-
-        return firebase
-          .generateToken({
-            _id: user._id,
-            role: user.role,
-            groups
-          })
-          .then(firebaseToken => {
-            res.json({
-              user: user.toSafeJSON(),
-              token,
-              firebaseToken
-            });
-          })
-          .catch(err2 => next(err2));
-      });
+      return generateUserFirebaseToken(user)
+        .then(firebaseToken => {
+          res.json({
+            user: user.toSafeJSON(),
+            token,
+            firebaseToken
+          });
+        })
+        .catch(err2 => next(err2));
     });
   })(req, res);
 }
 
 function refreshFirebaseToken(req, res, next) {
   const { user } = req;
-  return permissionService.getPermissions(user).then(result => {
-    const groups = result.groups
-      .filter(
-        p =>
-          (p.permission === GROUP_PERMISSION.MEMBER ||
-            p.permission === GROUP_PERMISSION.ADMIN) &&
-          p.group &&
-          p.group.chat
-      )
-      .map(p => p.group.chat.toString());
-
-    return firebase
-      .generateToken({
-        _id: user._id,
-        role: user.role,
-        groups
-      })
-      .then(firebaseToken => {
-        res.json({
-          firebaseToken
-        });
-      })
-      .catch(err => next(err));
-  });
+  return generateUserFirebaseToken(user)
+    .then(firebaseToken => {
+      res.json({
+        firebaseToken
+      });
+    })
+    .catch(err => next(err));
 }
 
 function requestResetPassword(req, res, next) {
@@ -157,6 +144,11 @@ function verifyEmail(req, res, next) {
     .catch(e => next(e));
 }
 
+function generate2FAKey(req, res) {
+  const key = googleAuthenticator.createKey();
+  res.json(key);
+}
+
 module.exports = {
   login,
   register,
@@ -164,5 +156,6 @@ module.exports = {
   refreshFirebaseToken,
   resetPassword,
   sendVerificationEmail,
-  verifyEmail
+  verifyEmail,
+  generate2FAKey
 };
