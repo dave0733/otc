@@ -1,6 +1,7 @@
 const express = require('express');
 const vouchCtrl = require('../controllers/vouch.controller');
 const offerCtrl = require('../controllers/offer.controller');
+const { is2FA } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
@@ -11,8 +12,8 @@ router
 
 router.route('/:vouchid').delete(vouchCtrl.remove);
 
-router.route('/:vouchid/accept').put(vouchCtrl.acceptVouch);
-router.route('/:vouchid/reject').put(vouchCtrl.rejectVouch);
+router.route('/:vouchid/accept').put(is2FA(), vouchCtrl.acceptVouch);
+router.route('/:vouchid/reject').put(is2FA(), vouchCtrl.rejectVouch);
 
 router.param('vouchid', vouchCtrl.getByIdMiddleware);
 
