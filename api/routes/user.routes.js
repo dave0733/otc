@@ -20,6 +20,7 @@ router
 
 router.use('/:id/permissions', permissionRoutes);
 router.route('/:id/feedback').get(offerCtrl.listFeedback);
+router.route('/:id/2fa').put(isAdmin, userCtrl.update2FA);
 
 router.param('id', userCtrl.getByIdMiddleware);
 
