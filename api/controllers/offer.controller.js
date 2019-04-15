@@ -49,7 +49,10 @@ class OfferController extends BaseCrudController {
           feedbackToProposal: {
             $exists: true
           },
-          $or: [{ offeredBy: req.user._id }, { counterpart: req.user._id }]
+          $or: [
+            { offeredBy: req.queryUser._id },
+            { counterpart: req.queryUser._id }
+          ]
         },
         req.query.sorts,
         req.query.skip,
