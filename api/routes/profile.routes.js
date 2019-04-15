@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require('multer');
 const authCtrl = require('../controllers/auth.controller');
 const profileCtrl = require('../controllers/profile.controller');
 const groupCtrl = require('../controllers/group.controller');
@@ -6,8 +7,15 @@ const offerCtrl = require('../controllers/offer.controller');
 const proposalCtrl = require('../controllers/proposal.controller');
 const vouchCtrl = require('../controllers/vouch.controller');
 const { is2FA } = require('../middlewares/auth.middleware');
+const config = require('../../config');
 
 const router = express.Router();
+const uploader = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: config.firebaseUploadLimit
+  }
+});
 
 router
   .route('/')
@@ -16,6 +24,7 @@ router
 
 router.route('/change-password').post(profileCtrl.changePassword);
 router.route('/refresh-firebase-token').get(authCtrl.refreshFirebaseToken);
+router.route('/avatar').post(uploader.single('file'), profileCtrl.uploadAvatar);
 
 router.route('/permissions').get(profileCtrl.getPermissions);
 router.route('/offers').get(offerCtrl.listMyOffers);

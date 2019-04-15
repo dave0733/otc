@@ -1,4 +1,7 @@
 const _ = require(`lodash`);
+const firebase = require('../utils/firebase');
+const config = require('../../config');
+const APIError = require('../utils/api-error');
 const BaseCrudService = require('./BaseCrudService');
 
 class UserService extends BaseCrudService {
@@ -75,6 +78,45 @@ class UserService extends BaseCrudService {
       .findById(user._id)
       .select('googleAuthenticator')
       .lean();
+  }
+
+  uploadAvatar(user, file) {
+    const bucket = firebase.getBucket();
+    const filename = `users/${user._id.toString()}`;
+
+    const prom = new Promise((resolve, reject) => {
+      if (!file) {
+        reject(new APIError('No file', 400));
+      }
+      const fileUpload = bucket.file(filename);
+      const metadata = {
+        contentType: file.mimetype
+      };
+
+      const blobStream = fileUpload.createWriteStream({
+        gzip: true,
+        metadata
+      });
+
+      blobStream.on('error', error => {
+        reject(error);
+      });
+
+      blobStream.on('finish', () => {
+        resolve({
+          avatar: `https://firebasestorage.googleapis.com/v0/b/${
+            config.firebaseBucket
+          }/o/${encodeURIComponent(filename)}?alt=media`
+        });
+      });
+
+      blobStream.end(file.buffer);
+    });
+
+    return prom.then(result => {
+      user.avatar = result.avatar;
+      return user.save();
+    });
   }
 }
 
