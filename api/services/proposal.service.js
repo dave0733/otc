@@ -28,7 +28,8 @@ class ProposalService extends BaseCrudService {
       user: {
         id: user._id.toString(),
         firstName: user.firstName,
-        lastName: user.lastName
+        lastName: user.lastName,
+        avatar: user.avatar
       },
       offer: {
         id: offer._id.toString(),
