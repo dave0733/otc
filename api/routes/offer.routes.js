@@ -2,6 +2,7 @@ const express = require('express');
 const offerCtrl = require('../controllers/offer.controller');
 const proposalRoutes = require('./proposal.routes');
 const vouchRoutes = require('./vouch.routes');
+const { is2FA } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ router
   .put(offerCtrl.update)
   .delete(offerCtrl.remove);
 
-router.route('/:offerid/end').put(offerCtrl.endListing);
+router.route('/:offerid/end').put(is2FA(), offerCtrl.endListing);
 router
   .route('/:offerid/leave-feedback-to-proposal')
   .put(offerCtrl.leaveFeedbackToProposal);
