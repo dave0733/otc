@@ -59,6 +59,7 @@ const userSchema = new Schema(
     address1: { type: String, trim: true },
     address2: { type: String, trim: true },
     zipcode: { type: String, trim: true },
+    avatar: { type: String },
 
     // feedback
     avgRating: { type: Number, default: 0 },

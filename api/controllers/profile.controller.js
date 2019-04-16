@@ -17,6 +17,15 @@ class ProfileController {
       .catch(next);
   }
 
+  uploadAvatar(req, res, next) {
+    userService
+      .uploadAvatar(req.user, req.file)
+      .then(result => {
+        res.json(result);
+      })
+      .catch(next);
+  }
+
   changePassword(req, res, next) {
     User.findById(req.user.id)
       .then(user => {

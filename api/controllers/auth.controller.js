@@ -17,7 +17,7 @@ function register(req, res, next) {
   const { email, password } = req.body;
 
   const data = {
-    ..._.pick(req.body, userService.fields),
+    ..._.pick(req.body, [...userService.fields, 'googleAuthenticator']),
     username: email
   };
   const user = new User(data);
