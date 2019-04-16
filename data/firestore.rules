@@ -38,7 +38,7 @@ service cloud.firestore {
     }
 
     match /users/{user}/{document=**} {
-      allow read: if hasUserAccess(user);
+      allow read: if hasUserAccess([user]);
     }
   }
 }
