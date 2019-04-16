@@ -8,13 +8,13 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(offerCtrl.create)
+  .post(is2FA(), offerCtrl.create)
   .get(offerCtrl.list);
 
 router
   .route('/:offerid')
   .get(offerCtrl.read)
-  .put(offerCtrl.update)
+  .put(is2FA(), offerCtrl.update)
   .delete(offerCtrl.remove);
 
 router.route('/:offerid/end').put(is2FA(), offerCtrl.endListing);

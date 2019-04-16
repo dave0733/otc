@@ -7,7 +7,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .post(proposalCtrl.create)
+  .post(is2FA(), proposalCtrl.create)
   .get(offerCtrl.getProposals);
 
 router
