@@ -12,7 +12,9 @@ const vouchSchema = new Schema(
       default: VOUCH_STATUS.PENDING
     },
     note: { type: String },
-    offer: { type: Schema.ObjectId, ref: 'Offer', required: true },
+    offer: { type: Schema.ObjectId, ref: 'Offer' },
+    proposal: { type: Schema.ObjectId, ref: 'Proposal' },
+    group: { type: Schema.ObjectId, ref: 'Group', required: true },
     requestedBy: { type: Schema.ObjectId, ref: 'User', required: true },
     requestedTo: { type: Schema.ObjectId, ref: 'User', required: true }
   },
@@ -24,6 +26,7 @@ const vouchSchema = new Schema(
 
 vouchSchema.index(
   { offer: 1, requestedBy: 1, requestedTo: 1 },
+  { proposal: 1, requestedBy: 1, requestedTo: 1 },
   { unique: true }
 );
 

@@ -17,6 +17,7 @@ router
 
 router.route('/:proposalid/accept').put(is2FA(), offerCtrl.acceptProposal);
 router.route('/:proposalid/reject').put(is2FA(), offerCtrl.rejectProposal);
+router.route('/:proposalid/vouches').get(proposalCtrl.getVouches);
 
 router.param('proposalid', proposalCtrl.getByIdMiddleware);
 

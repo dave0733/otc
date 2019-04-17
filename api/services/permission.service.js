@@ -175,8 +175,7 @@ class PermisisonService {
                 user: {
                   id: user._id.toString(),
                   firstName: user.firstName,
-                  lastName: user.lastName,
-                  avatar: user.avatar
+                  lastName: user.lastName
                 }
               }
             );

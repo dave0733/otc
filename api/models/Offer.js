@@ -27,7 +27,6 @@ const offerSchema = new Schema(
     },
     acceptedProposal: { type: Schema.ObjectId, ref: 'Proposal' },
     proposals: [{ type: Schema.ObjectId, ref: 'Proposal' }],
-    vouches: [{ type: Schema.ObjectId, ref: 'Vouch' }],
     offeredBy: { type: Schema.ObjectId, ref: 'User', required: true },
     counterpart: { type: Schema.ObjectId, ref: 'User' },
     group: { type: Schema.ObjectId, ref: 'Group', required: true },

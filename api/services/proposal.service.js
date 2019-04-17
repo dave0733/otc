@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const APIError = require('../utils/api-error');
 const notify = require('../utils/notify');
+const vouchService = require('./vouch.service');
 const PROPOSAL_STATUS = require('../constants/proposal-status');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
 
@@ -28,8 +29,7 @@ class ProposalService extends BaseCrudService {
       user: {
         id: user._id.toString(),
         firstName: user.firstName,
-        lastName: user.lastName,
-        avatar: user.avatar
+        lastName: user.lastName
       },
       offer: {
         id: offer._id.toString(),
@@ -108,6 +108,21 @@ class ProposalService extends BaseCrudService {
           }
         )
       );
+  }
+
+  getVouches(user, proposal, filters, sort, skip, limit) {
+    const newFilters = filters || {};
+
+    if (!this._isOwner(user, proposal)) {
+      newFilters.requestedTo = user._id;
+    }
+
+    newFilters.proposal = proposal._id;
+
+    return vouchService.list(user, newFilters, sort, skip, limit, true, [
+      { path: 'requestedTo', select: 'firstName lastName' },
+      { path: 'proposal', select: 'have want status' }
+    ]);
   }
 }
 

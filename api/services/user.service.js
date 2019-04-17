@@ -71,6 +71,7 @@ class UserService extends BaseCrudService {
 
   update2FA(user, base32) {
     user.googleAuthenticator = base32;
+    user.is2faEnabled = !!base32;
     return user.save();
   }
 
