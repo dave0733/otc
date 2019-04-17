@@ -35,6 +35,10 @@ service cloud.firestore {
       match /messages/{document=**} {
         allow read: if (hasGroupAccess(chat) || hasUserAccess(chatData().user_ids));
       }
+
+      match /alerts/{document=**} {
+        allow read: if hasGroupAccess(chat);
+      }
     }
 
     match /users/{user}/{document=**} {
