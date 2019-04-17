@@ -5,6 +5,7 @@ const permUtils = require('../utils/permission');
 const googleAuthenticator = require('../utils/google-authenticator');
 const ROLES = require('../constants/roles');
 const GROUP_PERMISSION = require('../constants/group-permission');
+const config = require('../../config');
 
 const User = mongoose.model('User');
 
@@ -63,6 +64,10 @@ const isMe = (req, res, next) => {
 
 const is2FA = (required = true) => (req, res, next) => {
   if (permUtils.isAdmin(req.user)) {
+    return next();
+  }
+
+  if (config.isDev) {
     return next();
   }
 

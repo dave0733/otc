@@ -73,6 +73,7 @@ const userSchema = new Schema(
 
     // security
     googleAuthenticator: { type: String, select: false },
+    is2faEnabled: { type: Boolean, default: false },
     resetToken: { type: String, select: false },
     resetExpires: { type: Date, select: false },
     lastPasswordChange: { type: Date },

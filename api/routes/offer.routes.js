@@ -1,7 +1,6 @@
 const express = require('express');
 const offerCtrl = require('../controllers/offer.controller');
 const proposalRoutes = require('./proposal.routes');
-const vouchRoutes = require('./vouch.routes');
 const { is2FA } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
@@ -25,8 +24,9 @@ router
   .route('/:offerid/leave-feedback-to-offer')
   .put(offerCtrl.leaveFeedbackToOffer);
 
+router.route('/:offerid/vouches').get(offerCtrl.getVouches);
+
 router.use('/:offerid/proposals', proposalRoutes);
-router.use('/:offerid/vouches', vouchRoutes);
 
 router.param('offerid', offerCtrl.getByIdMiddleware);
 

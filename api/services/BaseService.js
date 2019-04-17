@@ -42,6 +42,7 @@ class BaseService {
     message = 'You are not authorized to do this action'
   ) {
     return Promise.resolve().then(() => {
+      console.log(user, obj, fieldName);
       if (!this._isOwner(user, obj, fieldName) && !this._isAdmin(user)) {
         throw new APIError(message, 403);
       }

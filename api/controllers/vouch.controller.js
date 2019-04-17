@@ -28,7 +28,13 @@ class VouchController extends BaseCrudController {
 
   create(req, res, next) {
     return this.dataService
-      .create(req.user, req.body, req.offer, req.group)
+      .create({
+        user: req.user,
+        data: req.body,
+        group: req.group,
+        offerId: req.body.offerId,
+        proposalId: req.body.proposalId
+      })
       .then(item => res.json(item))
       .catch(next);
   }
@@ -38,7 +44,6 @@ class VouchController extends BaseCrudController {
       .acceptVouch({
         user: req.user,
         vouch: req.vouch,
-        offer: req.offer,
         group: req.group
       })
       .then(result => res.json(result))
@@ -50,7 +55,6 @@ class VouchController extends BaseCrudController {
       .rejectVouch({
         user: req.user,
         vouch: req.vouch,
-        offer: req.offer,
         group: req.group
       })
       .then(result => res.json(result))

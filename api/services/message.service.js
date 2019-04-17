@@ -63,7 +63,7 @@ class MessageService extends BaseService {
     const message = fs
       .collection('chats')
       .doc(chatID.toString())
-      .collection('messages')
+      .collection('alerts')
       .doc();
 
     const msgData = {

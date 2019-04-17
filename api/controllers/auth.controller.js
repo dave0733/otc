@@ -18,6 +18,7 @@ function register(req, res, next) {
 
   const data = {
     ..._.pick(req.body, [...userService.fields, 'googleAuthenticator']),
+    is2faEnabled: !!req.body.googleAuthenticator,
     username: email
   };
   const user = new User(data);
