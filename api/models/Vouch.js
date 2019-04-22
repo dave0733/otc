@@ -25,8 +25,7 @@ const vouchSchema = new Schema(
 );
 
 vouchSchema.index(
-  { offer: 1, requestedBy: 1, requestedTo: 1 },
-  { proposal: 1, requestedBy: 1, requestedTo: 1 },
+  { offer: 1, proposal: 1, requestedBy: 1, requestedTo: 1 },
   { unique: true }
 );
 

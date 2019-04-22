@@ -4,11 +4,13 @@ const APIError = require('../utils/api-error');
 const permissionService = require('./permission.service');
 const chatService = require('./chat.service');
 const notify = require('../utils/notify');
+const mailer = require('../utils/mailer');
+const ROLES = require('../constants/roles');
 const GROUP_PERMISSION = require('../constants/group-permission');
 const GROUP_STATUS = require('../constants/group-status');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
+const MAIL_TYPES = require('../constants/mail-type');
 
-// @TODO send notification to admins
 class GroupService extends BaseCrudService {
   constructor() {
     super(
@@ -17,6 +19,10 @@ class GroupService extends BaseCrudService {
       ['status'],
       'createdBy'
     );
+
+    this.getAdmins = this.getAdmins.bind(this);
+    this.getAllMembers = this.getAllMembers.bind(this);
+    this.getMembers = this.getMembers.bind(this);
   }
 
   _notifyAdmins(currentUser, type, group) {
@@ -51,6 +57,13 @@ class GroupService extends BaseCrudService {
         .then(() => chatService.createGroupChat(user, group))
         .then(chat => {
           group.chat = chat._id;
+
+          userService.model
+            .find({ role: ROLES.ADMIN })
+            .select('email')
+            .then(admins => {
+              mailer.send(admins, MAIL_TYPES.GROUP_REQUEST, { group });
+            });
           return group.save();
         })
         .then(() => group);
@@ -103,6 +116,37 @@ class GroupService extends BaseCrudService {
             group: groupid
           }
         }
+      },
+      sorts,
+      skip,
+      limit
+    );
+  }
+
+  getAllMembers(user, groupid, filters = {}, sorts, skip, limit) {
+    return this.getMembers(
+      user,
+      groupid,
+      {
+        ...filters,
+        $or: [
+          {
+            groups: {
+              $elemMatch: {
+                permission: GROUP_PERMISSION.MEMBER,
+                group: groupid
+              }
+            }
+          },
+          {
+            groups: {
+              $elemMatch: {
+                permission: GROUP_PERMISSION.ADMIN,
+                group: groupid
+              }
+            }
+          }
+        ]
       },
       sorts,
       skip,

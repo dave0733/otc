@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const APIError = require('../utils/api-error');
+const mailer = require('../utils/mailer');
 const notify = require('../utils/notify');
 const VOUCH_STATUS = require('../constants/vouch-status');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
+const MAIL_TYPES = require('../constants/mail-type');
 
 // @TODO check against requestTo connection
 class VouchService extends BaseCrudService {
@@ -23,6 +25,7 @@ class VouchService extends BaseCrudService {
     );
     this.offerModel = mongoose.model('Offer');
     this.proposalModel = mongoose.model('Proposal');
+    this.userModel = mongoose.model('User');
     this.acceptVouch = this.acceptVouch.bind(this);
     this.rejectVouch = this.rejectVouch.bind(this);
   }
@@ -98,6 +101,16 @@ class VouchService extends BaseCrudService {
             user,
             group
           });
+
+          this.userModel
+            .findById(vouch.requestedBy)
+            .select('email')
+            .then(u => {
+              mailer.send(u, MAIL_TYPES.VOUCH_REQUEST_RECEIVED, {
+                vouch,
+                group
+              });
+            });
           return vouch;
         });
     });
@@ -124,10 +137,25 @@ class VouchService extends BaseCrudService {
         return vouch.save();
       })
       .then(result => {
+        if (result.offer) {
+          result.offer.acceptedVouches = [
+            ...result.offer.acceptedVouches,
+            result._id
+          ];
+          return result.offer.save().then(() => result);
+        }
+
+        return result;
+      })
+      .then(result => {
         this._notify({
           to: vouch.requestedBy,
           type: NOTIFICATION_TYPE.VOUCH.ACCEPTED,
           user,
+          group
+        });
+        mailer.send(vouch.requestedBy, MAIL_TYPES.VOUCH_ACCEPTED, {
+          vouch,
           group
         });
         return result;
@@ -149,6 +177,10 @@ class VouchService extends BaseCrudService {
           to: vouch.requestedBy,
           type: NOTIFICATION_TYPE.VOUCH.REJECTED,
           user,
+          group
+        });
+        mailer.send(vouch.requestedBy, MAIL_TYPES.VOUCH_REJECTED, {
+          vouch,
           group
         });
         return result;

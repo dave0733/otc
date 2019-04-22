@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongooseDelete = require('mongoose-delete');
 const STATUSES = require('../constants/group-status');
 
 const { Schema } = mongoose;
@@ -33,6 +34,7 @@ const groupSchema = new Schema(
     timestamps: true
   }
 );
+groupSchema.plugin(mongooseDelete, { overrideMethods: true });
 
 const Group = mongoose.model('Group', groupSchema);
 

@@ -97,16 +97,21 @@ class ProposalService extends BaseCrudService {
         return super.remove(user, proposal);
       })
       .then(() =>
-        this.offerModel.findOneAndUpdate(
-          {
-            _id: proposal.offer
-          },
-          {
-            $pull: {
-              proposals: proposal._id
+        Promise.all([
+          this.offerModel.findOneAndUpdate(
+            {
+              _id: proposal.offer
+            },
+            {
+              $pull: {
+                proposals: proposal._id
+              }
             }
-          }
-        )
+          ),
+          this.vouchModel.deleteMany({
+            proposal: proposal._id
+          })
+        ])
       );
   }
 

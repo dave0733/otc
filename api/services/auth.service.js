@@ -3,8 +3,9 @@ const mongoose = require('mongoose');
 
 const generateToken = require(`../utils/token`);
 const config = require(`../../config`);
-const Mailer = require(`../utils/mailer`);
+const mailer = require(`../utils/mailer`);
 const APIError = require(`../utils/api-error`);
+const MAIL_TYPES = require('../constants/mail-type');
 
 const User = mongoose.model('User');
 
@@ -28,16 +29,8 @@ function requestResetPassword(email) {
       return user.save();
     })
     .then(user => {
-      return Mailer.sendTransactionMail({
-        to: user.email,
-        template: config.mailTemplates.resetPassword,
-        vars: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          resetUrl: `${config.host}/auth/reset-password?token=${
-            user.resetToken
-          }`
-        }
+      return mailer.send(user, MAIL_TYPES.RESET_PASSWORD, {
+        user
       });
     });
 }
@@ -79,16 +72,8 @@ function sendVerificationEmail(email) {
       return user.save();
     })
     .then(user => {
-      return Mailer.sendTransactionMail({
-        to: user.email,
-        template: config.mailTemplates.verification,
-        vars: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          verificationUrl: `${config.host}/auth/verify-email?token=${
-            user.verificationToken
-          }`
-        }
+      return mailer.send(user, MAIL_TYPES.VERIFICATION, {
+        user
       });
     });
 }
@@ -110,13 +95,8 @@ function verifyEmailForUser(token) {
       return user.save();
     })
     .then(user => {
-      return Mailer.sendTransactionMail({
-        to: user.email,
-        template: config.mailTemplates.welcome,
-        vars: {
-          firstName: user.firstName,
-          lastName: user.lastName
-        }
+      return mailer.send(user, MAIL_TYPES.WELCOME, {
+        user
       });
     });
 }

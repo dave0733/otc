@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const passportLocalMongoose = require('passport-local-mongoose');
+const mongooseDelete = require('mongoose-delete');
 const ROLES = require('../constants/roles');
 const GROUP_PERMISSIONS = require('../constants/group-permission');
 
@@ -22,7 +23,6 @@ const permissionSchema = new Schema(
 
 // @TODO oauth with facebook, twitter, github, google
 // @TODO stripe payment methods
-// @TODO google authenticator 2fa
 // @TODO sms
 // @TODO phone validator
 const userSchema = new Schema(
@@ -87,6 +87,7 @@ const userSchema = new Schema(
 );
 
 userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(mongooseDelete, { overrideMethods: true });
 
 userSchema.post('save', function postSave(error, doc, next) {
   if (error.name === 'MongoError' && error.code === 11000) {

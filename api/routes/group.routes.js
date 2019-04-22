@@ -22,6 +22,9 @@ router
   .delete(isGroupAdmin, groupCtrl.remove);
 
 router.route('/:groupid/members').get(hasGroupAccess, groupCtrl.getMembers);
+router
+  .route('/:groupid/all-members')
+  .get(hasGroupAccess, groupCtrl.getAllMembers);
 router.use('/:groupid/offers', hasGroupAccess, offerRoutes);
 router.use('/:groupid/chats', hasGroupAccess, chatRoutes);
 router.use('/:groupid/vouches', hasGroupAccess, vouchRoutes);
