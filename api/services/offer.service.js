@@ -257,7 +257,7 @@ class OfferService extends BaseCrudService {
   }
 
   rejectProposal({ user, offer, proposal, group }) {
-    return this.checkOwner(offer).then(() => {
+    return this.checkOwner(user, offer).then(() => {
       if (
         offer.status !== OFFER_STATUS.PENDING &&
         offer.status !== OFFER_STATUS.ACTIVE
