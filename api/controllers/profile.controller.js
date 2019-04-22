@@ -12,7 +12,7 @@ class ProfileController {
 
   updateProfile(req, res, next) {
     userService
-      .update(req.user, req.body)
+      .update(req.user, req.user, req.body)
       .then(user => res.json(user))
       .catch(next);
   }
