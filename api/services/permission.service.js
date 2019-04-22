@@ -3,6 +3,8 @@ const APIError = require('../utils/api-error');
 const userService = require('./user.service');
 const permUtils = require('../utils/permission');
 const notify = require('../utils/notify');
+const mailer = require('../utils/mailer');
+const MAIL_TYPES = require('../constants/mail-type');
 const GROUP_PERMISSION = require('../constants/group-permission');
 const GROUP_STATUS = require('../constants/group-status');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
@@ -37,7 +39,6 @@ class PermisisonService {
   getAdmins(user, groupid, filters = {}, sorts, skip, limit) {
     return userService.list(
       user,
-      groupid,
       {
         ...filters,
         groups: {
@@ -163,6 +164,10 @@ class PermisisonService {
     return this.addPermission(user, group, GROUP_PERMISSION.APPLIED).then(
       () => {
         this.getAdmins(user, group._id).then(result => {
+          mailer.send(result.data, MAIL_TYPES.APPLICATION_RECEIVED, {
+            group,
+            user
+          });
           result.data.forEach(admin => {
             return notify.send(
               admin,

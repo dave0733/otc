@@ -1,14 +1,18 @@
+const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const vouchService = require('./vouch.service');
 const proposalService = require('./proposal.service');
 const userService = require('./user.service');
 const APIError = require('../utils/api-error');
 const notify = require('../utils/notify');
+const mailer = require('../utils/mailer');
 const messageService = require('./message.service');
+const groupService = require('./group.service');
 const OFFER_STATUS = require('../constants/offer-status');
 const PROPOSAL_STATUS = require('../constants/proposal-status');
 const MESSAGE_TYPE = require('../constants/message-type');
 const NOTIFICATION_TYPE = require('../constants/notification-type');
+const MAIL_TYPES = require('../constants/mail-type');
 
 class OfferService extends BaseCrudService {
   constructor() {
@@ -17,7 +21,8 @@ class OfferService extends BaseCrudService {
       'activeProposal',
       'counterpart'
     ]);
-
+    this.vouchModel = mongoose.model('Vouch');
+    this.proposalModel = mongoose.model('Proposal');
     this.endListing = this.endListing.bind(this);
     this.leaveFeedbackToProposal = this.leaveFeedbackToProposal.bind(this);
     this.leaveFeedbackToOffer = this.leaveFeedbackToOffer.bind(this);
@@ -58,6 +63,16 @@ class OfferService extends BaseCrudService {
           note: offer.note || null
         }
       );
+
+      groupService
+        .getAllMembers(user, group._id, {}, [], 0, 10000)
+        .then(members => {
+          mailer.send(members.data, MAIL_TYPES.OFFER_CREATED, {
+            offer,
+            group,
+            user
+          });
+        });
       return offer;
     });
   }
@@ -73,13 +88,24 @@ class OfferService extends BaseCrudService {
   }
 
   remove(user, offer) {
-    return this.checkOwner(user, offer).then(() => {
-      if (offer.status !== OFFER_STATUS.PENDING) {
-        throw new APIError('You can not delete offer once it is active', 400);
-      }
+    return this.checkOwner(user, offer)
+      .then(() => {
+        if (offer.status !== OFFER_STATUS.PENDING) {
+          throw new APIError('You can not delete offer once it is active', 400);
+        }
 
-      return super.remove(user, offer);
-    });
+        return super.remove(user, offer);
+      })
+      .then(() =>
+        Promise.all([
+          this.vouchModel.deleteMany({
+            offer: offer._id
+          }),
+          this.proposalModel.deleteMany({
+            offer: offer._id
+          })
+        ])
+      );
   }
 
   _listWhere(user, filters = {}) {
@@ -112,6 +138,20 @@ class OfferService extends BaseCrudService {
               offer
             );
           });
+          mailer.send(offer.offeredBy, MAIL_TYPES.OFFER_ENDED, {
+            group: offer.group,
+            offer,
+            user: offer.offeredBy
+          });
+          mailer.send(
+            proposals.data.map(p => p.proposedBy),
+            MAIL_TYPES.OFFER_ENDED,
+            {
+              group: offer.group,
+              offer,
+              user: offer.offeredBy
+            }
+          );
         });
         return result;
       });
@@ -208,6 +248,9 @@ class OfferService extends BaseCrudService {
           group,
           offer
         );
+        mailer.send(proposal.proposedBy, MAIL_TYPES.PROPOSAL_ACCEPTED, {
+          group
+        });
         return offer;
       });
     });
@@ -239,6 +282,9 @@ class OfferService extends BaseCrudService {
           group,
           offer
         );
+        mailer.send(proposal.proposedBy, MAIL_TYPES.PROPOSAL_REJECTED, {
+          group
+        });
         return offer;
       });
     });

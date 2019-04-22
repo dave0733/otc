@@ -26,6 +26,7 @@ const offerSchema = new Schema(
       default: OFFER_STATUS.PENDING
     },
     acceptedProposal: { type: Schema.ObjectId, ref: 'Proposal' },
+    acceptedVouches: [{ type: Schema.ObjectId, ref: 'Vouch' }],
     proposals: [{ type: Schema.ObjectId, ref: 'Proposal' }],
     offeredBy: { type: Schema.ObjectId, ref: 'User', required: true },
     counterpart: { type: Schema.ObjectId, ref: 'User' },
