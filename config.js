@@ -19,15 +19,7 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET || 'emilisawesome',
   jwtExpiresIn: process.env.JWT_EXPIRES || '30d',
   sendgridApiKey: process.env.SENDGRID_API_KEY,
-  fromMailAddress: process.env.FROM_MAIL_ADDRESS || 'no-reply@otctrade.com',
-  fromName: process.env.FROM_NAME || 'No Reply',
-  mailTemplates: {
-    resetPassword:
-      process.env.MAIL_RESET_PASSWORD || 'd-bead0ea9a0054ca3b9632e5001d5a7ab',
-    welcome: process.env.MAIL_WELCOME || 'd-15f118b86a6041cd8cb7c68decb17142',
-    verification:
-      process.env.MAIL_VERIFICATION || 'd-b46d79300dfc4ca3ab172f26514ecb3a'
-  },
+  expireCheckInterval: process.env.EXPIRE_CHECK_INTERVAL || 60 * 1000, // 1min
   firebaseUrl: process.env.FIREBASE_URL || '',
   firebaseProject: process.env.FIREBASE_PROJECT || '',
   firebaseBucket: process.env.FIREBASE_BUCKET || '',
