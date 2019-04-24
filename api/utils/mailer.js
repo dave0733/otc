@@ -147,6 +147,12 @@ function send(to, type, payload = {}) {
           homepageURL: config.host
         }
       });
+    case MAIL_TYPES.CONTACT_US:
+      return _sendMail({
+        to,
+        template: MAIL_TYPES.CONTACT_US,
+        vars: payload
+      });
     default:
       return Promise.reject(new Error('Mail type not found'));
   }
