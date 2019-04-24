@@ -110,6 +110,7 @@ class MessageService extends BaseService {
     const msgData = {
       type: MESSAGE_TYPES.TEXT,
       sender_id: user._id.toString(),
+      group_id: chat.group.toString(),
       sender_name: `${user.firstName} ${user.lastName}`,
       sender_avatar: user.avatar || null,
       text: data.text || null,

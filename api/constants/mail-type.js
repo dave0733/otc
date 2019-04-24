@@ -11,5 +11,6 @@ module.exports = {
   PROPOSAL_REJECTED: 'proposalRejected',
   OFFER_CREATED: 'newOffer',
   OFFER_EXPIRED: 'offerExpired',
-  OFFER_ENDED: 'offerEnded'
+  OFFER_ENDED: 'offerEnded',
+  CONTACT_US: 'contactUs'
 };

@@ -16,6 +16,7 @@ module.exports = {
     offerExpired: 'd-c4c0971ccf4f49ab89ea7850a5f748f6',
     offerEnded: 'd-11d608549db244ceb7bf459088299ab9',
     proposalAccepted: 'd-f98a9fb848c943f7a68127a6b43b9dba',
-    proposalRejected: 'd-e8aa4597630347aebda2497edda09d9b'
+    proposalRejected: 'd-e8aa4597630347aebda2497edda09d9b',
+    contactUs: 'd-5efe8eb0b9ab48d8bb23fda5de40e6ab'
   }
 };
