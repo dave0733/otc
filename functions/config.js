@@ -11,6 +11,7 @@ module.exports = {
     groupRequest: 'd-0a1478c1e959455a942eef74297562d2',
     vouchDenied: 'd-c77ab4c3006f4336a6c15b518a969d76',
     vouchAccepted: 'd-48bc3976380643e8bf2e1ca14642e2d1',
+    vouchRequestReceived: 'd-e7f43c6e5f5942de87ddd20b5d908b1d',
     newOffer: 'd-b87fab064d6f48adad051da2990b73a4',
     offerExpired: 'd-c4c0971ccf4f49ab89ea7850a5f748f6',
     offerEnded: 'd-11d608549db244ceb7bf459088299ab9',

@@ -139,7 +139,7 @@ class OfferService extends BaseCrudService {
             );
           });
           mailer.send(offer.offeredBy, MAIL_TYPES.OFFER_ENDED, {
-            group: offer.group,
+            group,
             offer,
             user: offer.offeredBy
           });
@@ -147,7 +147,7 @@ class OfferService extends BaseCrudService {
             proposals.data.map(p => p.proposedBy),
             MAIL_TYPES.OFFER_ENDED,
             {
-              group: offer.group,
+              group,
               offer,
               user: offer.offeredBy
             }

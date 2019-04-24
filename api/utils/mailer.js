@@ -37,6 +37,9 @@ function send(to, type, payload = {}) {
           postedDate: moment().format('DD MMM, YYYY'),
           rating: payload.user.avgRating * 20,
           status: payload.offer.status,
+          offerUrl: `${
+            config.host
+          }/my-groups/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`,
           remainingTime:
             type === MAIL_TYPES.OFFER_CREATED
               ? moment
@@ -56,7 +59,7 @@ function send(to, type, payload = {}) {
         template: MAIL_TYPES.GROUP_REQUEST,
         vars: {
           groupName: payload.group.name,
-          groupUrl: `${config.host}/app/groups/${payload.group._id.toString()}`
+          groupUrl: `${config.host}/groups/${payload.group._id.toString()}`
         }
       });
     case MAIL_TYPES.APPLICATION_RECEIVED:
@@ -67,7 +70,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           groupUrl: `${
             config.host
-          }/app/groups/${payload.group._id.toString()}/admin/members`
+          }/groups/${payload.group._id.toString()}/admin/members`
         }
       });
     case MAIL_TYPES.VOUCH_ACCEPTED:
@@ -79,8 +82,8 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           vouchUrl: `${
             config.host
-          }/app/my-groups/${payload.group._id.toString()}/group/vouches-proposals/{${
-            payload.vouch.proposalId ? 'active-proposals' : 'active-deals'
+          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/${
+            payload.vouch.proposal ? 'active-proposals' : 'active-deals'
           }`
         }
       });
@@ -92,7 +95,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           vouchUrl: `${
             config.host
-          }/app/my-groups/${payload.group._id.toString()}/group/vouches-proposals/people-request-vouch`
+          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/people-request-vouch`
         }
       });
     case MAIL_TYPES.PROPOSAL_ACCEPTED:
@@ -104,7 +107,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           proposalUrl: `${
             config.host
-          }/app/my-groups/${payload.group._id.toString()}/group/vouches-proposals/active-proposals`
+          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/active-proposals`
         }
       });
     case MAIL_TYPES.RESET_PASSWORD:
