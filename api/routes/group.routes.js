@@ -22,6 +22,7 @@ router
   .delete(isGroupAdmin, groupCtrl.remove);
 
 router.route('/:groupid/members').get(hasGroupAccess, groupCtrl.getMembers);
+router.route('/:groupid/admins').get(groupCtrl.getAdmins);
 router
   .route('/:groupid/all-members')
   .get(hasGroupAccess, groupCtrl.getAllMembers);

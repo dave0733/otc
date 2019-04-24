@@ -7,6 +7,21 @@ class GroupController extends BaseCrudController {
 
     this.getAllMembers = this.getAllMembers.bind(this);
     this.getMembers = this.getMembers.bind(this);
+    this.getAdmins = this.getAdmins.bind(this);
+  }
+
+  getAdmins(req, res, next) {
+    return this.dataService
+      .getAdmins(
+        req.user,
+        req.group._id,
+        req.query.filters,
+        req.query.sorts,
+        req.query.skip,
+        req.query.limit
+      )
+      .then(items => res.json(items))
+      .catch(next);
   }
 
   getMembers(req, res, next) {
