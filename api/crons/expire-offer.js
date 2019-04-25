@@ -20,7 +20,8 @@ function sendNotification(userIds, offer) {
       return mailer
         .send(users, MAIL_TYPES.OFFER_EXPIRED, {
           user: offer.offeredBy,
-          offer
+          offer,
+          group: offer.group
         })
         .then(() => users);
     })
