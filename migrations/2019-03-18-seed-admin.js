@@ -25,7 +25,7 @@ function up() {
 
 function down() {
   return User.deleteMany({
-    username: 'admin@otctrading.io'
+    username: 'admin@admin.com'
   });
 }
 
