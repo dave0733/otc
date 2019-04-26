@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const BaseCrudService = require('./BaseCrudService');
 const userService = require('./user.service');
 const APIError = require('../utils/api-error');
@@ -20,6 +21,7 @@ class GroupService extends BaseCrudService {
       'createdBy'
     );
 
+    this.userModel = mongoose.model('User');
     this.getAdmins = this.getAdmins.bind(this);
     this.getAllMembers = this.getAllMembers.bind(this);
     this.getMembers = this.getMembers.bind(this);
@@ -44,10 +46,23 @@ class GroupService extends BaseCrudService {
 
     // force listing with status
     if (!this._isAdmin(user)) {
-      where.status = GROUP_STATUS.ACTIVE;
+      where.$or = [
+        {
+          status: GROUP_STATUS.ACTIVE
+        },
+        {
+          createdBy: user._id
+        }
+      ];
     }
 
     return where;
+  }
+
+  remove(user, group) {
+    return permissionService
+      .removeAllGroupPermissions(group)
+      .then(() => super.remove(user, group));
   }
 
   create(user, data) {

@@ -125,7 +125,7 @@ class ProposalService extends BaseCrudService {
     newFilters.proposal = proposal._id;
 
     return vouchService.list(user, newFilters, sort, skip, limit, true, [
-      { path: 'requestedTo', select: 'firstName lastName' },
+      { path: 'requestedTo' },
       { path: 'proposal', select: 'have want status' }
     ]);
   }

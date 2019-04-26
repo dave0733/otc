@@ -60,8 +60,8 @@ class OfferController extends BaseCrudController {
         true,
         [
           { path: 'group', select: 'name' },
-          { path: 'offeredBy', select: 'firstName lastName' },
-          { path: 'counterpart', select: 'firstName lastName' }
+          { path: 'offeredBy' },
+          { path: 'counterpart' }
         ],
         'group offeredBy feedbackToOffer feedbackToProposal counterpart updatedAt createdAt'
       )

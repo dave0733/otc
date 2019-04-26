@@ -15,7 +15,8 @@ const proposalSchema = new Schema(
     },
     note: { type: String },
     offer: { type: Schema.ObjectId, ref: 'Offer', required: true },
-    proposedBy: { type: Schema.ObjectId, ref: 'User', required: true }
+    proposedBy: { type: Schema.ObjectId, ref: 'User', required: true },
+    acceptedVouches: [{ type: Schema.ObjectId, ref: 'Vouch' }]
   },
   {
     collection: 'proposals',

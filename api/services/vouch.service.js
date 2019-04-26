@@ -15,12 +15,12 @@ class VouchService extends BaseCrudService {
       ['note', 'requestedTo'],
       [],
       'requestedBy',
-      ['offer', 'requestedBy', 'requestedTo'],
+      ['offer', 'proposal', 'requestedBy', 'requestedTo'],
       [
-        { path: 'offer', select: 'have want' },
-        { path: 'proposal', select: 'have want' },
-        { path: 'requestedBy', select: 'firstName lastName avatar avgRating' },
-        { path: 'requestedTo', select: 'firstName lastName avatar avgRating' }
+        { path: 'offer' },
+        { path: 'proposal' },
+        { path: 'requestedBy' },
+        { path: 'requestedTo' }
       ]
     );
     this.offerModel = mongoose.model('Offer');
@@ -111,7 +111,8 @@ class VouchService extends BaseCrudService {
                 group
               });
             });
-          return vouch;
+
+          return this.get(user, vouch._id);
         });
     });
   }
@@ -143,6 +144,14 @@ class VouchService extends BaseCrudService {
             result._id
           ];
           return result.offer.save().then(() => result);
+        }
+
+        if (result.proposal) {
+          result.proposal.acceptedVouches = [
+            ...result.proposal.acceptedVouches,
+            result._id
+          ];
+          return result.proposal.save().then(() => result);
         }
 
         return result;
