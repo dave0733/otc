@@ -25,6 +25,8 @@ class PermisisonService {
     this.revokeApplication = this.revokeApplication.bind(this);
     this.revokeAdminAccess = this.revokeAdminAccess.bind(this);
     this.revokeBan = this.revokeBan.bind(this);
+
+    this.removeAllGroupPermissions = this.removeAllGroupPermissions.bind(this);
   }
 
   _notify(user, group, type) {
@@ -101,6 +103,25 @@ class PermisisonService {
       {
         $pull: {
           groups: condition
+        }
+      }
+    );
+  }
+
+  removeAllGroupPermissions(group) {
+    return this.userModel.updateMany(
+      {
+        groups: {
+          $elemMatch: {
+            group: group._id
+          }
+        }
+      },
+      {
+        $pull: {
+          groups: {
+            group: group._id
+          }
         }
       }
     );
