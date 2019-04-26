@@ -110,6 +110,17 @@ function send(to, type, payload = {}) {
           }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/active-proposals`
         }
       });
+    case MAIL_TYPES.OFFER_FEEDBACK:
+      return _sendMail({
+        to,
+        template: type,
+        vars: {
+          groupName: payload.group.name,
+          offerUrl: `${
+            config.host
+          }/my-groups/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`
+        }
+      });
     case MAIL_TYPES.RESET_PASSWORD:
       return _sendMail({
         to,

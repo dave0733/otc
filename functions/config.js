@@ -17,6 +17,8 @@ module.exports = {
     offerEnded: 'd-11d608549db244ceb7bf459088299ab9',
     proposalAccepted: 'd-f98a9fb848c943f7a68127a6b43b9dba',
     proposalRejected: 'd-e8aa4597630347aebda2497edda09d9b',
-    contactUs: 'd-5efe8eb0b9ab48d8bb23fda5de40e6ab'
+    contactUs: 'd-5efe8eb0b9ab48d8bb23fda5de40e6ab',
+    offerFeedback: 'd-3045a1f2741d479abfa1b15def0ee667',
+    proposalFeedback: 'd-3045a1f2741d479abfa1b15def0ee667'
   }
 };

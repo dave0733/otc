@@ -12,5 +12,7 @@ module.exports = {
   OFFER_CREATED: 'newOffer',
   OFFER_EXPIRED: 'offerExpired',
   OFFER_ENDED: 'offerEnded',
-  CONTACT_US: 'contactUs'
+  CONTACT_US: 'contactUs',
+  OFFER_FEEDBACK: 'offerFeedback',
+  PROPOSAL_FEEDBACK: 'proposalFeedback'
 };

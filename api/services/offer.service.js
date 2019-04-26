@@ -183,6 +183,10 @@ class OfferService extends BaseCrudService {
           group,
           offer
         );
+        mailer.send(offer.counterpart, MAIL_TYPES.PROPOSAL_FEEDBACK, {
+          offer,
+          group
+        });
         return offer;
       });
   }
@@ -213,6 +217,11 @@ class OfferService extends BaseCrudService {
           group,
           offer
         );
+        mailer.send(offer.offeredBy, MAIL_TYPES.OFFER_FEEDBACK, {
+          offer,
+          group
+        });
+
         return offer;
       });
   }
