@@ -112,6 +112,8 @@ class OfferService extends BaseCrudService {
     const where = super._listWhere(user, filters);
     if (!filters[this.userIdField]) {
       delete where[this.userIdField];
+    } else {
+      where[this.userIdField] = filters[this.userIdField];
     }
 
     return where;
