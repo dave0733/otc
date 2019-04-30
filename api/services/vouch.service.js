@@ -103,7 +103,7 @@ class VouchService extends BaseCrudService {
           });
 
           this.userModel
-            .findById(vouch.requestedBy)
+            .findById(data.requestedTo)
             .select('email')
             .then(u => {
               mailer.send(u, MAIL_TYPES.VOUCH_REQUEST_RECEIVED, {
