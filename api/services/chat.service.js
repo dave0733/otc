@@ -13,6 +13,7 @@ class ChatService extends BaseCrudService {
     super('Chat');
     this.createPrivateChat = this.createPrivateChat.bind(this);
     this.createGroupChat = this.createGroupChat.bind(this);
+    this.getAllPrivateChats = this.getAllPrivateChats.bind(this);
     this.getPrivateChats = this.getPrivateChats.bind(this);
   }
 
@@ -109,7 +110,19 @@ class ChatService extends BaseCrudService {
       users: user._id,
       group: group._id,
       type: CHAT_TYPES.PRIVATE
-    });
+    }).sort([['updatedAt', 'desc']]);
+  }
+
+  getAllPrivateChats(user) {
+    return ChatModel.find({
+      users: user._id,
+      type: CHAT_TYPES.PRIVATE,
+      messageCount: {
+        $gt: 0
+      }
+    })
+      .populate('users group')
+      .sort([['updatedAt', 'desc']]);
   }
 }
 

@@ -119,11 +119,16 @@ class MessageService extends BaseService {
       updated_at: new Date().valueOf()
     };
 
-    return message.set(msgData).then(() => ({
-      ...data,
-      extra,
-      id: message.id
-    }));
+    return message.set(msgData).then(() => {
+      chat.messageCount += 1;
+      chat.save();
+
+      return {
+        ...data,
+        extra,
+        id: message.id
+      };
+    });
   }
 
   update(user, message, data) {

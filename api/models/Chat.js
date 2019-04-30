@@ -11,6 +11,7 @@ const chatSchema = new Schema(
       default: CHAT_TYPES.PRIVATE,
       enum: Object.values(CHAT_TYPES)
     },
+    messageCount: { type: Number, default: 0 },
     group: { type: Schema.ObjectId, ref: 'Group' },
     createdBy: { type: Schema.ObjectId, ref: 'User' },
     users: [{ type: Schema.ObjectId, ref: 'User' }]

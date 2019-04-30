@@ -6,6 +6,7 @@ const groupCtrl = require('../controllers/group.controller');
 const offerCtrl = require('../controllers/offer.controller');
 const proposalCtrl = require('../controllers/proposal.controller');
 const vouchCtrl = require('../controllers/vouch.controller');
+const chatCtrl = require('../controllers/chat.controller');
 const { is2FA } = require('../middlewares/auth.middleware');
 const config = require('../../config');
 
@@ -30,6 +31,7 @@ router.route('/permissions').get(profileCtrl.getPermissions);
 router.route('/offers').get(offerCtrl.listMyOffers);
 router.route('/my-groups/:groupid/proposals').get(proposalCtrl.list);
 router.route('/my-groups/:groupid/vouches').get(vouchCtrl.listRequestedVouches);
+router.route('/chats').get(chatCtrl.getAllPrivateChats);
 
 router
   .route('/permissions/:groupid/apply')

@@ -6,12 +6,22 @@ class ChatController extends BaseCrudController {
     super(chatService, 'chat');
 
     this.getPrivateChats = this.getPrivateChats.bind(this);
+    this.getAllPrivateChats = this.getAllPrivateChats.bind(this);
     this.createPrivateChat = this.createPrivateChat.bind(this);
   }
 
   getPrivateChats(req, res, next) {
     chatService
       .getPrivateChats(req.user, req.group)
+      .then(chats => {
+        res.json(chats);
+      })
+      .catch(next);
+  }
+
+  getAllPrivateChats(req, res, next) {
+    chatService
+      .getAllPrivateChats(req.user)
       .then(chats => {
         res.json(chats);
       })
