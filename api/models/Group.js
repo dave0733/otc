@@ -9,6 +9,7 @@ const groupSchema = new Schema(
     name: { type: String, required: true, trim: true },
     description: { type: String, trim: true },
     rules: { type: String },
+    post: { type: String },
     closed: { type: Boolean, default: false },
     status: {
       type: String,

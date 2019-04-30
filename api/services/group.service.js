@@ -16,7 +16,7 @@ class GroupService extends BaseCrudService {
   constructor() {
     super(
       'Group',
-      ['name', 'description', 'rules', 'closed'],
+      ['name', 'description', 'rules', 'closed', 'post'],
       ['status'],
       'createdBy'
     );
