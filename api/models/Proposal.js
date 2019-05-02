@@ -5,8 +5,8 @@ const { Schema } = mongoose;
 
 const proposalSchema = new Schema(
   {
-    have: { type: String, required: true, maxlength: 32 },
-    want: { type: String, required: true, maxlength: 32 },
+    have: { type: String, required: true, maxlength: 45 },
+    want: { type: String, required: true, maxlength: 45 },
     status: {
       type: String,
       required: true,

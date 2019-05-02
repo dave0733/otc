@@ -16,8 +16,8 @@ const feedbackSchema = new Schema(
 
 const offerSchema = new Schema(
   {
-    have: { type: String, required: true, maxlength: 32 },
-    want: { type: String, required: true, maxlength: 32 },
+    have: { type: String, required: true, maxlength: 45 },
+    want: { type: String, required: true, maxlength: 45 },
     note: { type: String },
     status: {
       type: String,
