@@ -118,10 +118,6 @@ class ProposalService extends BaseCrudService {
   getVouches(user, proposal, filters, sort, skip, limit) {
     const newFilters = filters || {};
 
-    if (!this._isOwner(user, proposal)) {
-      newFilters.requestedTo = user._id;
-    }
-
     newFilters.proposal = proposal._id;
 
     return vouchService.list(user, newFilters, sort, skip, limit, true, [

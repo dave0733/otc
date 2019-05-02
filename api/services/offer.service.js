@@ -304,10 +304,6 @@ class OfferService extends BaseCrudService {
   getVouches(user, offer, filters, sort, skip, limit) {
     const newFilters = filters || {};
 
-    if (!this._isOwner(user, offer)) {
-      newFilters.requestedTo = user._id;
-    }
-
     newFilters.offer = offer._id;
 
     return vouchService.list(user, newFilters, sort, skip, limit, true, [
