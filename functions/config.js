@@ -9,6 +9,7 @@ module.exports = {
     verification: 'd-720b9ce951bb4eabae30fd8faff3fcf6',
     applicationReceived: 'd-1150271e732f4b489fe98b34cf2a9588',
     groupRequest: 'd-0a1478c1e959455a942eef74297562d2',
+    groupJoined: 'd-5251fbd1f1984161beac89ee5f8f11fc',
     vouchDenied: 'd-c77ab4c3006f4336a6c15b518a969d76',
     vouchAccepted: 'd-48bc3976380643e8bf2e1ca14642e2d1',
     vouchRequestReceived: 'd-e7f43c6e5f5942de87ddd20b5d908b1d',

@@ -4,6 +4,7 @@ module.exports = {
   RESET_PASSWORD: 'resetPassword',
   APPLICATION_RECEIVED: 'applicationReceived',
   GROUP_REQUEST: 'groupRequest',
+  GROUP_JOINED: 'groupJoined',
   VOUCH_DENIED: 'vouchDenied',
   VOUCH_ACCEPTED: 'vouchAccepted',
   VOUCH_REQUEST_RECEIVED: 'vouchRequestReceived',

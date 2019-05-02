@@ -62,6 +62,17 @@ function send(to, type, payload = {}) {
           groupUrl: `${config.host}/groups/${payload.group._id.toString()}`
         }
       });
+    case MAIL_TYPES.GROUP_JOINED:
+      return _sendMail({
+        to,
+        template: MAIL_TYPES.GROUP_JOINED,
+        vars: {
+          groupName: payload.group.name,
+          groupUrl: `${
+            config.host
+          }/my-groups/${payload.group._id.toString()}/group/chat`
+        }
+      });
     case MAIL_TYPES.APPLICATION_RECEIVED:
       return _sendMail({
         to,

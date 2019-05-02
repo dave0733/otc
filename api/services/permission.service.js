@@ -231,6 +231,9 @@ class PermisisonService {
     return this.upsertPermission(user, group, GROUP_PERMISSION.MEMBER).then(
       () => {
         this._notify(user, group, NOTIFICATION_TYPE.PERMISSION.GRANTED_MEMBER);
+        mailer.send(user, MAIL_TYPES.GROUP_JOINED, {
+          group
+        });
       }
     );
   }
