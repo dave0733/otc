@@ -19,7 +19,8 @@ class UserService extends BaseCrudService {
         'address1',
         'address2',
         'zipcode',
-        'avatar'
+        'avatar',
+        'bio'
       ],
       ['role']
     );

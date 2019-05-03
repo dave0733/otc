@@ -44,6 +44,7 @@ const userSchema = new Schema(
       trim: true,
       lowercase: true
     },
+    bio: { type: String },
     role: {
       type: String,
       required: true,
