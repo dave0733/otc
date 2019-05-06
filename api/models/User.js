@@ -14,7 +14,8 @@ const permissionSchema = new Schema(
       required: true,
       enum: Object.values(GROUP_PERMISSIONS),
       default: GROUP_PERMISSIONS.APPLIED
-    }
+    },
+    comment: { type: String }
   },
   {
     _id: false

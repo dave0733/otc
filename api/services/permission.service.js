@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const mongoose = require('mongoose');
 const APIError = require('../utils/api-error');
 const userService = require('./user.service');
@@ -56,7 +57,7 @@ class PermisisonService {
     );
   }
 
-  addPermission(user, group, permission, isForced) {
+  addPermission(user, group, permission, isForced, body) {
     if (!isForced && group.status !== GROUP_STATUS.ACTIVE) {
       return Promise.reject(new APIError('This group is not active yet', 403));
     }
@@ -66,6 +67,7 @@ class PermisisonService {
         new APIError('You are banned from this group', 403)
       );
     }
+    const comment = _.get(body, 'comment', '');
 
     return this.userModel
       .findOneAndUpdate(
@@ -79,7 +81,8 @@ class PermisisonService {
           $push: {
             groups: {
               group: group._id,
-              permission
+              permission,
+              comment
             }
           }
         }
@@ -172,7 +175,7 @@ class PermisisonService {
     );
   }
 
-  applyForGroup(user, group) {
+  applyForGroup(user, group, body) {
     if (
       permUtils.isGroupMember(user, group) ||
       permUtils.isGroupAdmin(user, group)
@@ -182,33 +185,37 @@ class PermisisonService {
       );
     }
 
-    return this.addPermission(user, group, GROUP_PERMISSION.APPLIED).then(
-      () => {
-        this.getAdmins(user, group._id).then(result => {
-          mailer.send(result.data, MAIL_TYPES.APPLICATION_RECEIVED, {
-            group,
-            user
-          });
-          result.data.forEach(admin => {
-            return notify.send(
-              admin,
-              NOTIFICATION_TYPE.PERMISSION.RECEIVED_APPLICATION,
-              {
-                group: {
-                  id: group._id.toString(),
-                  name: group.name
-                },
-                user: {
-                  id: user._id.toString(),
-                  firstName: user.firstName,
-                  lastName: user.lastName
-                }
-              }
-            );
-          });
+    return this.addPermission(
+      user,
+      group,
+      GROUP_PERMISSION.APPLIED,
+      false,
+      body
+    ).then(() => {
+      this.getAdmins(user, group._id).then(result => {
+        mailer.send(result.data, MAIL_TYPES.APPLICATION_RECEIVED, {
+          group,
+          user
         });
-      }
-    );
+        result.data.forEach(admin => {
+          return notify.send(
+            admin,
+            NOTIFICATION_TYPE.PERMISSION.RECEIVED_APPLICATION,
+            {
+              group: {
+                id: group._id.toString(),
+                name: group.name
+              },
+              user: {
+                id: user._id.toString(),
+                firstName: user.firstName,
+                lastName: user.lastName
+              }
+            }
+          );
+        });
+      });
+    });
   }
 
   banFromGroup(user, group) {
