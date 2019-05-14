@@ -18,8 +18,8 @@ router
 
 router
   .route('/:groupid/admin')
-  .put(isAdmin, permissionCtrl.makeAdminForGroup)
-  .delete(isAdmin, permissionCtrl.revokeAdminAccess);
+  .put(isGroupAdmin, permissionCtrl.makeAdminForGroup)
+  .delete(isGroupAdmin, permissionCtrl.revokeAdminAccess);
 
 router
   .route('/:groupid/ban')
