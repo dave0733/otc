@@ -13,13 +13,17 @@ function _sendMail({ to, subject, template, vars }) {
   }
   emails = emails.map(u => (u.email ? u.email : u));
 
-  return newMail.set({
-    to: emails,
-    template,
-    subject: subject || null,
-    vars,
-    status: 'PENDING'
-  });
+  return Promise.all(
+    emails.map(e =>
+      newMail.set({
+        to: e,
+        template,
+        subject: subject || null,
+        vars,
+        status: 'PENDING'
+      })
+    )
+  );
 }
 
 function send(to, type, payload = {}) {
