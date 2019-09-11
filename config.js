@@ -11,7 +11,8 @@ if (isDev) {
 }
 
 module.exports = {
-  host: process.env.HOST || 'https://www.otctrade.com',
+  host: process.env.HOST || 'https://app.otctrade.com',
+  homeURL: process.env.HOMEPAGE_URI || 'https://otctrade.com',
   port: parseInt(process.env.PORT, 10) || 4000,
   isDev,
   mongoURL: process.env.MONGODB_URI || 'mongodb://localhost:27017/otctrade',
