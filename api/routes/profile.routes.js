@@ -29,8 +29,8 @@ router.route('/avatar').post(uploader.single('file'), profileCtrl.uploadAvatar);
 
 router.route('/permissions').get(profileCtrl.getPermissions);
 router.route('/offers').get(offerCtrl.listMyOffers);
-router.route('/my-groups/:groupid/proposals').get(proposalCtrl.list);
-router.route('/my-groups/:groupid/vouches').get(vouchCtrl.listRequestedVouches);
+router.route('/my-desks/:groupid/proposals').get(proposalCtrl.list);
+router.route('/my-desks/:groupid/vouches').get(vouchCtrl.listRequestedVouches);
 router.route('/chats').get(chatCtrl.getAllPrivateChats);
 
 router

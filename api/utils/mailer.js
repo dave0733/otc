@@ -43,7 +43,7 @@ function send(to, type, payload = {}) {
           status: payload.offer.status,
           offerUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`,
+          }/my-desks/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`,
           remainingTime:
             type === MAIL_TYPES.OFFER_CREATED
               ? moment
@@ -74,7 +74,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           groupUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/chat`
+          }/my-desks/${payload.group._id.toString()}/group/chat`
         }
       });
     case MAIL_TYPES.APPLICATION_RECEIVED:
@@ -97,7 +97,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           vouchUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/${
+          }/my-desks/${payload.group._id.toString()}/group/vouches-proposals/${
             payload.vouch.proposal ? 'active-proposals' : 'active-deals'
           }`
         }
@@ -110,7 +110,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           vouchUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/people-request-vouch`
+          }/my-desks/${payload.group._id.toString()}/group/vouches-proposals/people-request-vouch`
         }
       });
     case MAIL_TYPES.PROPOSAL_ACCEPTED:
@@ -122,7 +122,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           proposalUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/vouches-proposals/active-proposals`
+          }/my-desks/${payload.group._id.toString()}/group/vouches-proposals/active-proposals`
         }
       });
     case MAIL_TYPES.OFFER_FEEDBACK:
@@ -133,7 +133,7 @@ function send(to, type, payload = {}) {
           groupName: payload.group.name,
           offerUrl: `${
             config.host
-          }/my-groups/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`
+          }/my-desks/${payload.group._id.toString()}/group/offers?offerId=${payload.offer._id.toString()}`
         }
       });
     case MAIL_TYPES.RESET_PASSWORD:
