@@ -144,9 +144,7 @@ function send(to, type, payload = {}) {
         vars: {
           firstName: payload.user.firstName,
           lastName: payload.user.lastName,
-          resetUrl: `${config.host}/auth/reset-password?token=${
-            payload.user.resetToken
-          }`
+          resetUrl: `${config.homeURL}?reset-password-token=${payload.user.resetToken}`
         }
       });
     case MAIL_TYPES.VERIFICATION:
@@ -157,9 +155,7 @@ function send(to, type, payload = {}) {
         vars: {
           firstName: payload.user.firstName,
           lastName: payload.user.lastName,
-          activeAccountUrl: `${config.host}/auth/verify-email?token=${
-            payload.user.verificationToken
-          }`
+          activeAccountUrl: `${config.homeURL}?verify-email-token=${payload.user.verificationToken}`
         }
       });
     case MAIL_TYPES.WELCOME:
